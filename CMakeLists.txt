@@ -19,7 +19,7 @@ set(SOURCE_FILES    tests/SimpleClient.cpp
                     src/SQLiteCpp/Database.h
                     src/SQLiteCpp/Statement.h
                     src/SQLiteCpp/Transaction.h
-                    src/sqlite3/sqlite3.h src/test.cpp src/test.hpp)
+                    src/sqlite3/sqlite3.h)
 add_executable(QuizMan ${SOURCE_FILES})
 
 # Install target
