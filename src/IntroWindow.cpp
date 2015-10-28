@@ -1,4 +1,4 @@
-#include <QtSql>
+#include <QSql>
 #include "../include/IntroWindow.hpp"
 #include "ui_IntroWindow.h"
 #include "../include/ProgramConstants.hpp"

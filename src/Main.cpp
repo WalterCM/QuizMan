@@ -1,6 +1,5 @@
-#include "include/IntroWindow.hpp"
+#include "../include/IntroWindow.hpp"
 #include <QApplication>
-#include <QDir>
 
 int main(int argc, char *argv[])
 {
@@ -10,5 +9,3 @@ int main(int argc, char *argv[])
 
     return a.exec();
 }
-
-
