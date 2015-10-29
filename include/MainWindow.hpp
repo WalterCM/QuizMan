@@ -13,12 +13,12 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = 0, UserAccount account = UserAccount());
     ~MainWindow();
 
 private:
     Ui::MainWindow *ui;
-    UserAccount a;
+    UserAccount account;
 };
 
 #endif // MAINWINDOW_HPP

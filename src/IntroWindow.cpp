@@ -1,6 +1,6 @@
 #include <QSql>
-#include "../include/IntroWindow.hpp"
 #include "ui_IntroWindow.h"
+#include "../include/IntroWindow.hpp"
 #include "../include/ProgramConstants.hpp"
 
 IntroWindow::IntroWindow(QWidget *parent) :
@@ -72,4 +72,32 @@ void IntroWindow::on_noAccountButton_clicked()
 {
     this->hide();
     mainWindow->showMaximized();
+}
+
+void IntroWindow::on_accountSelectionOk_clicked()
+{
+    int index = ui->usersListUI->currentIndex().row();
+    UserAccount account(dataBase, listModel->stringList().at(index));
+    this->hide();
+    mainWindow = new MainWindow(this, account);
+    mainWindow->showMaximized();
+}
+
+void IntroWindow::on_accountCreationOk_clicked()
+{
+    // Obtiene el nombre de usuario en el casillero
+    QString accountName = ui->lineEdit->text();
+
+    // Crea una cuenta con ese nombre
+    accountManager.createAccount(accountName);
+
+    // Crea un objeto con ese nombre
+    UserAccount account(dataBase, accountName);
+
+    // Oculta la ventana introductoria
+    // E inicia la ventana principal del programa
+    this->hide();
+    mainWindow = new MainWindow(this, account);
+    mainWindow->showMaximized();
+
 }

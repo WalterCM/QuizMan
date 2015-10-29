@@ -11,7 +11,10 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>QuizMan</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menubar">
@@ -27,29 +30,161 @@
     <property name="title">
      <string>Editar</string>
     </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
+    <addaction name="actionCut"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+    <addaction name="actionDelete"/>
+    <addaction name="separator"/>
+    <addaction name="actionSelectAll"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Ayuda</string>
     </property>
+    <addaction name="actionQuizManHelp"/>
+    <addaction name="actionQuizManTour"/>
+    <addaction name="actionKeyboardShortcuts"/>
+    <addaction name="separator"/>
     <addaction name="actionAboutQuizMan"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>Archivo</string>
     </property>
+    <addaction name="actionNewExam"/>
+    <addaction name="actionNewCustomExam"/>
+    <addaction name="actionOpenExam"/>
+    <addaction name="separator"/>
+    <addaction name="actionSaveExam"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuHerramientas">
+    <property name="title">
+     <string>Herramientas</string>
+    </property>
+    <addaction name="actionQuizManEditor"/>
+    <addaction name="actionOptions"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuHerramientas"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="separator"/>
+   <addaction name="actionOptions"/>
+  </widget>
   <action name="actionAboutQuizMan">
    <property name="text">
     <string>Acerca de QuizMan</string>
    </property>
   </action>
+  <action name="actionNewCustomExam">
+   <property name="text">
+    <string>Nuevo Examen Personalizado</string>
+   </property>
+  </action>
+  <action name="actionOpenExam">
+   <property name="text">
+    <string>Abrir Examen</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Salir</string>
+   </property>
+  </action>
+  <action name="actionSaveExam">
+   <property name="text">
+    <string>Guardar Examen</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Atras</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>Adelante</string>
+   </property>
+  </action>
+  <action name="actionCut">
+   <property name="text">
+    <string>Cortar</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>Copiar</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="text">
+    <string>Pegar</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="text">
+    <string>Borrar</string>
+   </property>
+  </action>
+  <action name="actionSelectAll">
+   <property name="text">
+    <string>Seleccionar Todo</string>
+   </property>
+  </action>
+  <action name="actionQuizManHelp">
+   <property name="text">
+    <string>Ayuda de QuizMan</string>
+   </property>
+  </action>
+  <action name="actionQuizManTour">
+   <property name="text">
+    <string>QuizMan Tour</string>
+   </property>
+  </action>
+  <action name="actionKeyboardShortcuts">
+   <property name="text">
+    <string>Atajos de Teclado</string>
+   </property>
+  </action>
+  <action name="actionQuizManEditor">
+   <property name="text">
+    <string>Editor de Preguntas</string>
+   </property>
+  </action>
+  <action name="actionNewExam">
+   <property name="text">
+    <string>Nuevo Examen Tipo</string>
+   </property>
+  </action>
+  <action name="actionOptions">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/options.png</normaloff>:/icons/options.png</iconset>
+   </property>
+   <property name="text">
+    <string>Opciones</string>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

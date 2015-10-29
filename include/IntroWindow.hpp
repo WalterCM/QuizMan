@@ -26,6 +26,10 @@ private slots:
 
     void on_noAccountButton_clicked();
 
+    void on_accountSelectionOk_clicked();
+
+    void on_accountCreationOk_clicked();
+
 private:
     Ui::IntroWindow *ui;
     QStringListModel *listModel;

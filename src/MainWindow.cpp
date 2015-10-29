@@ -1,9 +1,10 @@
-#include "../include/MainWindow.hpp"
 #include "ui_MainWindow.h"
+#include "../include/MainWindow.hpp"
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent, UserAccount account) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    account(account)
 {
     ui->setupUi(this);
 }

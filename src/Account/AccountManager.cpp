@@ -50,7 +50,7 @@ void AccountManager::createAccount(QString accountName)
     // Ejecuta la consulta
     QSqlQuery query;
     query.prepare("INSERT INTO Accounts (AccountName)"
-                  "VALUES (::name)");
+                  "VALUES (:name)");
     query.bindValue(":name", QVariant(accountName));
     query.exec();
 
@@ -80,6 +80,9 @@ QStringList AccountManager::getAccountList()
     // Mientras haya mas cuentas, agrega el nombre en la lista
     QStringList list;
     while (query.next()) {
+        // No agrega la cuenta de invitado a la lista
+        if (query.value(0).toString() == "Guest")
+            continue;
         list << query.value(0).toString();
     }
 

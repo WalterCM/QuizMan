@@ -30,3 +30,6 @@ FORMS    += resources/ui/IntroWindow.ui \
             resources/ui/MainWindow.ui
 
 DESTDIR = $$PWD
+
+RESOURCES += \
+    resources/resources.qrc
