@@ -5,7 +5,7 @@ project(QuizMan)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 # Set executable directory
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Core REQUIRED)
@@ -31,20 +31,23 @@ set(QuizMan_HEADERS
         include/Account/UserAccount.hpp
         include/Account.hpp
         include/ProgramConstants.hpp)
+set(UI_RESOURCES
+        resources/resources.qrc
+)
 
 qt5_wrap_cpp(QuizMan_HEADERS_MOC ${QuizMan_HEADERS})
 qt5_wrap_ui(QuizMan_FORMS_HEADERS ${QuizMan_FORMS})
+qt5_add_resources(UI_RESOURCES_RCC ${UI_RESOURCES})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 add_executable(QuizMan
         ${QuizMan_SOURCES}
         ${QuizMan_HEADERS_MOC}
         ${QuizMan_FORMS_HEADERS}
+        ${UI_RESOURCES_RCC}
 )
-#target_link_libraries(QuizMan ${QT_LIBRARIES})
 
-#qt5_use_modules(QuizMan Widgets Core Gui Sql)
 target_link_libraries(QuizMan Qt5::Widgets Qt5::Core Qt5::Gui Qt5::Sql)
 
 # Install target
-install(TARGETS ${EXECUTABLE_NAME} DESTINATION ${PROJECT_SOURCE_DIR})
+#install(TARGETS ${EXECUTABLE_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/bin)
