@@ -7,6 +7,8 @@ MainWindow::MainWindow(QWidget *parent, UserAccount account) :
     account(account)
 {
     ui->setupUi(this);
+    ui->summaryReport->setText(account.getSummaryReport());
+    ui->summaryHistory->setText(account.getSummaryHistory());
 }
 
 MainWindow::~MainWindow()

@@ -10,6 +10,11 @@ public:
     UserAccount() {}
     UserAccount(QSqlDatabase db);
     UserAccount(QSqlDatabase db, QString accountName);
+    QString getAccountName();
+    QString getHistory();
+    QString getReport();
+    QString getSummaryHistory();
+    QString getSummaryReport();
 private:
     QString accountName;
 };

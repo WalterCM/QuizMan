@@ -17,14 +17,16 @@ SOURCES += src/Main.cpp\
         src/IntroWindow.cpp \
         src/Account/UserAccount.cpp \
         src/Account/AccountManager.cpp \
-        src/MainWindow.cpp
+        src/MainWindow.cpp \
+        src/Exam/Question.cpp
 
 HEADERS  += include/IntroWindow.hpp \
         include/Account.hpp \
         include/Account/UserAccount.hpp \
         include/Account/AccountManager.hpp \
         include/ProgramConstants.hpp \
-        include/MainWindow.hpp
+        include/MainWindow.hpp \
+        include/Exam/Question.hpp
 
 FORMS    += resources/ui/IntroWindow.ui \
             resources/ui/MainWindow.ui

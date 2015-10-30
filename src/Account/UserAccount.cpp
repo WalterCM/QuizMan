@@ -46,3 +46,30 @@ UserAccount::UserAccount(QSqlDatabase db, QString accountName)
     // Cierra la base de datos y retorna la lista
     db.close();
 }
+
+QString UserAccount::getAccountName()
+{
+    return accountName;
+}
+
+QString UserAccount::getHistory()
+{
+
+}
+
+QString UserAccount::getReport()
+{
+
+}
+
+QString UserAccount::getSummaryHistory()
+{
+    QString text = "No se han tomado examenes aun";
+    return text;
+}
+
+QString UserAccount::getSummaryReport()
+{
+    QString text = "Hola, " + accountName;
+    return text;
+}

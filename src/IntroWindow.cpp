@@ -71,6 +71,9 @@ void IntroWindow::on_accountCreationBack_clicked()
 void IntroWindow::on_noAccountButton_clicked()
 {
     this->hide();
+    UserAccount account(dataBase);
+    this->hide();
+    mainWindow = new MainWindow(this, account);
     mainWindow->showMaximized();
 }
 
