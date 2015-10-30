@@ -1,4 +1,4 @@
-#include "../../include/Account/AccountManager.hpp"
+#include "include/Account.hpp"
 
 AccountManager::AccountManager(QSqlDatabase db)
 {

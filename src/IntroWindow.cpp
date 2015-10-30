@@ -1,7 +1,7 @@
 #include <QSql>
 #include "ui_IntroWindow.h"
-#include "../include/IntroWindow.hpp"
-#include "../include/ProgramConstants.hpp"
+#include "include/IntroWindow.hpp"
+#include "include/ProgramConstants.hpp"
 
 IntroWindow::IntroWindow(QWidget *parent) :
         QMainWindow(parent),

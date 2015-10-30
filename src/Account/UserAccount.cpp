@@ -1,4 +1,4 @@
-#include "../../include/Account/UserAccount.hpp"
+#include "include/Account.hpp"
 
 UserAccount::UserAccount(QSqlDatabase db) {
     this->accountName = "Invitado";
@@ -54,12 +54,12 @@ QString UserAccount::getAccountName()
 
 QString UserAccount::getHistory()
 {
-
+    return QString("No history");
 }
 
 QString UserAccount::getReport()
 {
-
+    return QString("No report");
 }
 
 QString UserAccount::getSummaryHistory()
