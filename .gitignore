@@ -1,5 +1,14 @@
+# idea project
 .idea/
+
+# windows executables
 *.exe
+
+# Linux executable
 QuizMan
+
+# build folder
 build*
-QuizMan.pro.user
+
+# 
+*.pro.user
