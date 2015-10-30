@@ -1,4 +1,4 @@
-#include "../../include/Exam/Question.hpp"
+#include "include/Exam.hpp"
 
 Question::Question()
 {
