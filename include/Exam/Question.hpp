@@ -2,22 +2,33 @@
 #define QUESTION_HPP
 
 #include <QString>
-#include <QMap>
-#include <QtSql>
+#include <QList>
+#include <QStringList>
+#include "Option.hpp"
 
 class Question
 {
 public:
-    Question();
+    void setID(int id);
     void setDescription(QString description);
-    void setOptions(QMap<int, QString> options);
-    void setNewOption(QString newOption, bool correct);
-    bool oneCorrect();
-    bool isCorrect(int index);
+    void setOptions(QList<Option> options);
+    void addOption(Option option);
+    void setTopics(QStringList topics);
+    void addTopic(QString topic);
+
+    int getID() const;
+    QString getDescription() const;
+    QList<Option> getOptions() const;
+    QStringList getTopics() const;
+
+    bool operator==(const Question &question) const;
+
+    void randomizeOptionsOrder();
 private:
+    int id;
     QString description;
-    QMap<int, QString> options;
-    QList<int> correct;
+    QList<Option> options;
+    QStringList topics;
 };
 
 #endif // QUESTION_HPP

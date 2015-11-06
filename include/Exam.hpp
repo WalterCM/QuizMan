@@ -1,9 +1,10 @@
-#ifndef EXAM_HPP
-#define EXAM_HPP
+#ifndef EXAM
+#define EXAM
 
-#include "Exam/ExamManager.hpp"
-#include "Exam/Question.hpp"
-#include "Exam/QuizManExam.hpp"
+#include "include/Exam/QuizManExam.hpp"
+#include "include/Exam/Question.hpp"
+#include "include/Exam/Option.hpp"
+#include "include/Exam/ExamManager.hpp"
 
-#endif // EXAM_HPP
+#endif // EXAM
 

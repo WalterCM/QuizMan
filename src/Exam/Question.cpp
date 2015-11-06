@@ -1,7 +1,8 @@
-#include "include/Exam.hpp"
+#include "include/Exam/Question.hpp"
 
-Question::Question()
+void Question::setID(int id)
 {
+    this->id = id;
 }
 
 void Question::setDescription(QString description)
@@ -9,29 +10,54 @@ void Question::setDescription(QString description)
     this->description = description;
 }
 
-void Question::setOptions(QMap<int, QString> options)
+void Question::setOptions(QList<Option> options)
 {
     this->options = options;
 }
 
-void Question::setNewOption(QString newOption, bool correct)
+void Question::addOption(Option option)
 {
-    int index = this->options.count() + 1;
-    this->options[index] = newOption;
-    if (correct)
-        this->correct.push_back(index);
+    int newIndex = this->options.count() + 1;
+    this->options[newIndex] = option;
 }
 
-bool Question::oneCorrect()
+void Question::setTopics(QStringList topics)
 {
-    return this->correct.count() == 1;
+    this->topics = topics;
 }
 
-bool Question::isCorrect(int index)
+void Question::addTopic(QString topic)
 {
-    for (int i : this->correct) {
-        if (index == i)
-            return true;
-    }
-    return false;
+    this->topics.push_back(topic);
+}
+
+int Question::getID() const
+{
+    return this->id;
+}
+
+QString Question::getDescription() const
+{
+    return this->description;
+}
+
+QList<Option> Question::getOptions() const
+{
+    return this->options;
+}
+
+QStringList Question::getTopics() const
+{
+    return this->topics;
+}
+
+bool Question::operator==(const Question &question) const
+{
+    return this->getID() == question.getID() &&
+            this->getDescription() == question.getDescription();
+}
+
+void Question::randomizeOptionsOrder()
+{
+    // TODO: Write function to randomize the orden of options
 }
