@@ -1,5 +1,5 @@
-#include "include/Account.hpp"
-
+#include "include/Account/AccountManager.hpp"
+#include <iostream>
 AccountManager::AccountManager(QSqlDatabase db)
 {
     this->db = db;
@@ -60,6 +60,7 @@ void AccountManager::createAccount(QString accountName)
 
 void AccountManager::deleteAccount(QString accountName)
 {
+    // TODO: write the code for deleting accounts
 }
 
 QStringList AccountManager::getAccountList()
@@ -89,4 +90,48 @@ QStringList AccountManager::getAccountList()
     // Cierra la base de datos y retorna la lista
     db.close();
     return list;
+}
+
+QString AccountManager::getAccountName(int index)
+{
+    // Verifica que la base de datos fue encontrada
+    if (!db.open())
+    {
+        qDebug() << "Database not found";
+        return "";
+    }
+
+    // Crea una nueva consulta
+    // Ejecuta una consulta que devuelve todos los nombres de cuenta
+    QSqlQuery query;
+    query.prepare("SELECT AccountName FROM Accounts WHERE AccountID = :ID");
+    query.bindValue(":ID", index);
+    query.exec();
+    query.next();
+
+    QString accountName = query.value(0).toString();
+
+    // Cierra la base de datos y retorna la lista
+    db.close();
+    return accountName;
+}
+
+QString AccountManager::getHistory(QString accountName)
+{
+    return QString("No hay historial");
+}
+
+QString AccountManager::getReport(QString accountName)
+{
+    return QString("No hay reporte");
+}
+
+QString AccountManager::getSummaryHistory(QString accountName)
+{
+    return QString("No hay historial");
+}
+
+QString AccountManager::getSummaryReport(QString accountName)
+{
+    return QString("Hola, " + accountName);
 }

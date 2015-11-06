@@ -12,6 +12,12 @@ public:
     void createAccount(QString accountName);
     void deleteAccount(QString accountName);
     QStringList getAccountList();
+    QString getAccountName(int index);
+
+    QString getHistory(QString accountName);
+    QString getReport(QString accountName);
+    QString getSummaryHistory(QString accountName);
+    QString getSummaryReport(QString accountName);
 private:
     QSqlDatabase db;
 };

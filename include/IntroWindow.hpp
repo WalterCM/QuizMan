@@ -35,7 +35,7 @@ private:
     QStringListModel *listModel;
     MainWindow *mainWindow;
 
-    QSqlDatabase dataBase;
+    QSqlDatabase database;
     AccountManager accountManager;
 };
 

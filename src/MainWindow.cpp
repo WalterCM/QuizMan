@@ -1,14 +1,14 @@
 #include "ui_MainWindow.h"
 #include "include/MainWindow.hpp"
-
-MainWindow::MainWindow(QWidget *parent, UserAccount account) :
+#include <QPushButton>
+MainWindow::MainWindow(QWidget *parent, QString accountName) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    account(account)
+    accountManager(AccountManager(database))
 {
     ui->setupUi(this);
-    ui->summaryReport->setText(account.getSummaryReport());
-    ui->summaryHistory->setText(account.getSummaryHistory());
+    ui->summaryReport->setText(accountManager.getSummaryReport(accountName));
+    ui->summaryHistory->setText(accountManager.getSummaryHistory(accountName));
 }
 
 MainWindow::~MainWindow()

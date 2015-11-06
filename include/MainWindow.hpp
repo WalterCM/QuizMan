@@ -2,6 +2,7 @@
 #define MAINWINDOW_HPP
 
 #include <QMainWindow>
+#include <QtSql>
 #include "Account.hpp"
 
 namespace Ui {
@@ -13,12 +14,13 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0, UserAccount account = UserAccount());
+    explicit MainWindow(QWidget *parent = 0, QString accountName = "Guest");
     ~MainWindow();
 
 private:
     Ui::MainWindow *ui;
-    UserAccount account;
+    QSqlDatabase database;
+    AccountManager accountManager;\
 };
 
 #endif // MAINWINDOW_HPP

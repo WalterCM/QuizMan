@@ -1,4 +1,5 @@
 #include <QSql>
+#include <iostream>
 #include "ui_IntroWindow.h"
 #include "include/IntroWindow.hpp"
 #include "include/ProgramConstants.hpp"
@@ -6,7 +7,7 @@
 IntroWindow::IntroWindow(QWidget *parent) :
         QMainWindow(parent),
         ui(new Ui::IntroWindow),
-        accountManager(AccountManager(dataBase))
+        accountManager(AccountManager(database))
 {
     // Configura la interfaz de usuario
     ui->setupUi(this);
@@ -15,17 +16,17 @@ IntroWindow::IntroWindow(QWidget *parent) :
     this->setFixedSize(this->size());
 
     // Agrega una base de datos SQLite a nuestro objeto QSqlDatabase
-    dataBase = QSqlDatabase::addDatabase("QSQLITE");
+    database = QSqlDatabase::addDatabase("QSQLITE");
 
     // Obtiene la direccion absoluta del programa
     // Y le agrega la direccion relativa de la base de datos
     // Y configura el camino a la base de datos en el objeto
     QString path = QDir::currentPath();
     path.append(DATABASE_RELATIVE_PATH);
-    dataBase.setDatabaseName(path);
+    database.setDatabaseName(path);
 
     // Configura la base de datos en el administrador de cuentas
-    accountManager = AccountManager(dataBase);
+    accountManager = AccountManager(database);
 
     // Instancia un nuevo modelo de lista
     listModel = new QStringListModel(this);
@@ -71,18 +72,16 @@ void IntroWindow::on_accountCreationBack_clicked()
 void IntroWindow::on_noAccountButton_clicked()
 {
     this->hide();
-    UserAccount account(dataBase);
-    this->hide();
-    mainWindow = new MainWindow(this, account);
+    mainWindow = new MainWindow(this);
     mainWindow->showMaximized();
 }
 
 void IntroWindow::on_accountSelectionOk_clicked()
 {
-    int index = ui->usersListUI->currentIndex().row();
-    UserAccount account(dataBase, listModel->stringList().at(index));
+    int index = ui->usersListUI->currentIndex().row() + 2;
+    QString accountName = accountManager.getAccountName(index);
     this->hide();
-    mainWindow = new MainWindow(this, account);
+    mainWindow = new MainWindow(this, accountName);
     mainWindow->showMaximized();
 }
 
@@ -94,13 +93,9 @@ void IntroWindow::on_accountCreationOk_clicked()
     // Crea una cuenta con ese nombre
     accountManager.createAccount(accountName);
 
-    // Crea un objeto con ese nombre
-    UserAccount account(dataBase, accountName);
-
     // Oculta la ventana introductoria
     // E inicia la ventana principal del programa
     this->hide();
-    mainWindow = new MainWindow(this, account);
+    mainWindow = new MainWindow(this, accountName);
     mainWindow->showMaximized();
-
 }

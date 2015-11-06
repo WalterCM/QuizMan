@@ -587,9 +587,6 @@ border-width: 1px;
                   </widget>
                  </item>
                 </layout>
-                <zorder>label</zorder>
-                <zorder>groupSummary</zorder>
-                <zorder>pushButton</zorder>
                </widget>
               </item>
               <item>
@@ -670,9 +667,6 @@ border-width: 1px;
                   </widget>
                  </item>
                 </layout>
-                <zorder>label_3</zorder>
-                <zorder>groupSummary</zorder>
-                <zorder>pushButton_3</zorder>
                </widget>
               </item>
              </layout>
@@ -696,7 +690,9 @@ border-width: 1px;
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="ExaemPage"/>
+      <widget class="QWidget" name="ExamSelecionPage"/>
+      <widget class="QWidget" name="CustomExamSelecionPage"/>
+      <widget class="QWidget" name="CustomExamCreationPage"/>
      </widget>
     </item>
    </layout>
@@ -723,6 +719,7 @@ border-width: 1px;
     <addaction name="actionDelete"/>
     <addaction name="separator"/>
     <addaction name="actionSelectAll"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">

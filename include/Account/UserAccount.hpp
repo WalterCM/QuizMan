@@ -1,22 +1,18 @@
-#ifndef USERACCOUNT_HPP
+/*#ifndef USERACCOUNT_HPP
 #define USERACCOUNT_HPP
 
-#include <QString>
 #include <QtSql>
+#include <QString>
 
 class UserAccount
 {
 public:
-    UserAccount() {}
-    UserAccount(QSqlDatabase db);
-    UserAccount(QSqlDatabase db, QString accountName);
+    UserAccount();
+    UserAccount(QString accountName);
     QString getAccountName();
-    QString getHistory();
-    QString getReport();
-    QString getSummaryHistory();
-    QString getSummaryReport();
 private:
     QString accountName;
+    QSqlDatabase db;
 };
 
-#endif // USERACCOUNT_HPP
+#endif // USERACCOUNT_HPP*/
