@@ -17,6 +17,10 @@ public:
     void addAny(int amount);
 
     QList<Question> getQuestionList();
+
+    QStringList getDBAreas();
+    QHash<QString, QStringList> getDBSubjectTree();
+    QHash<QString, QHash<QString, QStringList> > getDBTopicTree();
 private:
     void addQuestions(QString column, int amount, QString colimnName);
     Question getQuestion(int questionID, QString questionDescription);

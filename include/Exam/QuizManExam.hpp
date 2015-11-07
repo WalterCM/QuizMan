@@ -15,6 +15,7 @@ public:
     QString getName();
     QStringList getAreas();
     QStringList getSubjects();
+
     QList<Question> getQuestions();
     QHash<QString, QMultiHash<QString, Question> > getQuestionTree();
 
@@ -23,6 +24,7 @@ public:
     bool questionExists(Question question);
     bool questionExists(QString subject, Question question);
     bool questionExists(QString area, QString subject, Question question);
+
 private:
     QHash<QString, QMultiHash<QString, Question> > questionTree;
     QString name;

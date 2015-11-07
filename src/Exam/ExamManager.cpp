@@ -35,10 +35,81 @@ QList<Question> ExamManager::getQuestionList()
     return this->exam.getQuestions();
 }
 
+QStringList ExamManager::getDBAreas()
+{
+    if (!db.open()) {
+        qDebug() << "Database not found";
+        qDebug() << "5";
+    }
+
+    QSqlQuery query;
+    query.exec("SELECT AreaName FROM Areas");
+    QStringList areaList;
+
+    while (query.next()) {
+        areaList.push_back(query.value(0).toString());
+    }
+    db.close();
+
+    return areaList;
+}
+
+QHash<QString, QStringList> ExamManager::getDBSubjectTree()
+{
+    if (!db.open()) {
+        qDebug() << "Database not found";
+        qDebug() << "6";
+    }
+
+    QSqlQuery query;
+    query.exec("SELECT a.AreaName, s.SubjectName\
+               FROM Subjects AS s\
+               INNER JOIN Areas AS a\
+               ON a.AreaID = s.AreaID");
+    QHash<QString, QStringList> subjectTree;
+    while (query.next()) {
+        QString areaName = query.value(0).toString();
+        QString subjectName = query.value(1).toString();
+        subjectTree[areaName].push_back(subjectName);
+    }
+    db.close();
+
+    return subjectTree;
+}
+
+QHash<QString, QHash<QString, QStringList> > ExamManager::getDBTopicTree()
+{
+    if (!db.open()) {
+        qDebug() << "Database not found";
+        qDebug() << "7";
+    }
+
+    QSqlQuery query;
+    query.exec("SELECT a.AreaName, s.SubjectName, t.TopicName\
+               FROM Topics AS t\
+               INNER JOIN Subjects AS s\
+               ON s.SubjectID = t.SubjectID\
+               INNER JOIN Areas AS a\
+               ON a.AreaID = s.AreaID");
+    QHash<QString, QHash<QString, QStringList> > topicTree;
+
+    while (query.next()) {
+        QString areaName = query.value(0).toString();
+        QString subjectName = query.value(1).toString();
+        QString topicName = query.value(2).toString();
+
+        topicTree[areaName][subjectName].push_back(topicName);
+    }
+    db.close();
+
+    return topicTree;
+}
+
 void ExamManager::addQuestions(QString column, int amount, QString columnName)
 {
     if (!db.open()) {
         qDebug() << "Database not found";
+        qDebug() << "8";
         return;
     }
 

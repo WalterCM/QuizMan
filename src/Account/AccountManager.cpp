@@ -12,6 +12,7 @@ bool AccountManager::exists(QString accountName)
     if (!db.open())
     {
         qDebug() << "Database not found";
+        qDebug() << "1";
         return 0;
     }
 
@@ -41,6 +42,7 @@ void AccountManager::createAccount(QString accountName)
     if (!db.open())
     {
         qDebug() << "Database not found";
+        qDebug() << "2";
         return;
     }
 
@@ -69,6 +71,7 @@ QStringList AccountManager::getAccountList()
     if (!db.open())
     {
         qDebug() << "Database not found";
+        qDebug() << "3";
         return QStringList();
     }
 
@@ -98,6 +101,7 @@ QString AccountManager::getAccountName(int index)
     if (!db.open())
     {
         qDebug() << "Database not found";
+        qDebug() << "4";
         return "";
     }
 

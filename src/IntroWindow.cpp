@@ -72,7 +72,7 @@ void IntroWindow::on_accountCreationBack_clicked()
 void IntroWindow::on_noAccountButton_clicked()
 {
     this->hide();
-    mainWindow = new MainWindow(this);
+    mainWindow = new MainWindow(this, "Invitado", database);
     mainWindow->showMaximized();
 }
 
@@ -81,7 +81,7 @@ void IntroWindow::on_accountSelectionOk_clicked()
     int index = ui->usersListUI->currentIndex().row() + 2;
     QString accountName = accountManager.getAccountName(index);
     this->hide();
-    mainWindow = new MainWindow(this, accountName);
+    mainWindow = new MainWindow(this, accountName, database);
     mainWindow->showMaximized();
 }
 
@@ -96,6 +96,6 @@ void IntroWindow::on_accountCreationOk_clicked()
     // Oculta la ventana introductoria
     // E inicia la ventana principal del programa
     this->hide();
-    mainWindow = new MainWindow(this, accountName);
+    mainWindow = new MainWindow(this, accountName, database);
     mainWindow->showMaximized();
 }
