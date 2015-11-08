@@ -26,6 +26,8 @@ private slots:
 
     void on_examCriteriaCB_currentIndexChanged(int index);
 
+    void on_custonExamBack_clicked();
+
 private:
     enum {
         ByArea,

@@ -89,3 +89,8 @@ void MainWindow::on_examCriteriaCB_currentIndexChanged(int index)
         break;
     }
 }
+
+void MainWindow::on_custonExamBack_clicked()
+{
+    ui->stackedWidget->setCurrentWidget(ui->MainPage);
+}
