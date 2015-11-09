@@ -11,21 +11,40 @@ public:
     ExamManager();
     ExamManager(QSqlDatabase db);
 
-    void addByArea(int amount, QString areaName);
-    void addBySubject(int amount, QString subjectName);
-    void addByTopic(int amount, QString topicName);
+    void addByArea(int amount, QStringList areaNames);
+    void addBySubject(int amount, QStringList subjectNames);
+    void addByTopic(int amount, QStringList topicNames);
     void addAny(int amount);
 
     QList<Question> getQuestionList();
 
     QStringList getDBAreas();
-    QHash<QString, QStringList> getDBSubjectTree();
-    QHash<QString, QHash<QString, QStringList> > getDBTopicTree();
+    QStringList getDBSubjects(QString area);
+    QStringList getDBTopics(QString subject);
+    QStringList getDBTopicsPerArea(QString area);
+
+    void clearExamInfo();
+    void addRegister(QString registerName, QStringList registerValue, int amount);
+    void removeRegister(QString registerName);
+    QStringList getRegisterNames();
+    QStringList getRegisterValue(QString registerName);
+    int getRegisterAmount(QString registerName);
+
+    void setTime(int time);
+    int getTime();
 private:
-    void addQuestions(QString column, int amount, QString colimnName);
+    void addQuestions(QString column, int amount, QStringList columnNames);
     Question getQuestion(int questionID, QString questionDescription);
+
     QSqlDatabase db;
+
     QuizManExam exam;
+
+    int time;
+    int count = 0;
+    QHash<int, QString> registryCount;
+    QHash<QString, QStringList> registers;
+    QHash<QString, int> infoAmount;
 };
 
 #endif // EXAMMANAGER_HPP

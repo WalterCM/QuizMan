@@ -481,7 +481,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_3">
+   <layout class="QGridLayout" name="gridLayout_7">
     <item row="0" column="0" rowspan="3" colspan="3">
      <layout class="QHBoxLayout" name="horizontalLayout_3"/>
     </item>
@@ -700,42 +700,28 @@ border-width: 1px;
       <widget class="QWidget" name="ExamSelecionPage"/>
       <widget class="QWidget" name="CustomExamSelecionPage"/>
       <widget class="QWidget" name="CustomExamCreationPage">
-       <layout class="QGridLayout" name="gridLayout_8">
+       <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
-           <widget class="QLabel" name="label_4">
+           <widget class="QPushButton" name="addRegistry">
             <property name="text">
-             <string>Crear examen por:</string>
+             <string>Agregar registro</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="examCriteriaCB">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>0</height>
-             </size>
+           <widget class="QPushButton" name="editRegistry">
+            <property name="text">
+             <string>Modificar registro</string>
             </property>
-            <property name="styleSheet">
-             <string notr="true"/>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="removeRegistry">
+            <property name="text">
+             <string>Remover registro</string>
             </property>
-            <item>
-             <property name="text">
-              <string>Areas</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Cursos</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Temas</string>
-             </property>
-            </item>
            </widget>
           </item>
           <item>
@@ -751,58 +737,100 @@ border-width: 1px;
             </property>
            </spacer>
           </item>
+          <item>
+           <widget class="QPushButton" name="clearSeleccion">
+            <property name="text">
+             <string>Limpiar seleccion</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item row="1" column="0">
-         <widget class="QStackedWidget" name="examStackedWidget">
-          <property name="currentIndex">
-           <number>2</number>
-          </property>
-          <widget class="QWidget" name="ByArea">
-           <layout class="QGridLayout" name="gridLayout_7">
-            <item row="0" column="0">
-             <widget class="QTreeWidget" name="areaTree">
-              <column>
-               <property name="text">
-                <string notr="true">1</string>
-               </property>
-              </column>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="BySubject">
-           <layout class="QGridLayout" name="gridLayout_9">
-            <item row="0" column="0">
-             <widget class="QTreeWidget" name="subjectTee">
-              <column>
-               <property name="text">
-                <string notr="true">1</string>
-               </property>
-              </column>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="ByTopic">
-           <layout class="QGridLayout" name="gridLayout_10">
-            <item row="0" column="0">
-             <widget class="QTreeWidget" name="topicTree">
-              <column>
-               <property name="text">
-                <string notr="true">1</string>
-               </property>
-              </column>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QTextBrowser" name="textBrowser"/>
-            </item>
-           </layout>
-          </widget>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <item>
+           <widget class="QLabel" name="label_6">
+            <property name="styleSheet">
+             <string notr="true">QLabal {
+	border: 2px solid rgb(0, 0, 0);
+}</string>
+            </property>
+            <property name="text">
+             <string>&lt;b&gt;Areas&lt;/b&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>&lt;b&gt;Cursos&lt;/b&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_5">
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <property name="text">
+             <string>&lt;b&gt;Temas&lt;/b&gt;</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item row="2" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QListWidget" name="areaList"/>
+          </item>
+          <item>
+           <widget class="QListWidget" name="subjectList"/>
+          </item>
+          <item>
+           <widget class="QListWidget" name="topicList"/>
+          </item>
+         </layout>
+        </item>
+        <item row="3" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_11">
+          <item>
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Registros</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>Contenidos</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>Resumen del examen</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="4" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_9">
+          <item>
+           <widget class="QListWidget" name="registryList"/>
+          </item>
+          <item>
+           <widget class="QTextBrowser" name="textBrowser_3"/>
+          </item>
+          <item>
+           <widget class="QTextBrowser" name="textBrowser"/>
+          </item>
+         </layout>
+        </item>
+        <item row="5" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_7">
           <item>
            <spacer name="horizontalSpacer_3">
@@ -899,6 +927,7 @@ border-width: 1px;
     <addaction name="actionHistorial_de_examenes_2"/>
     <addaction name="actionReportes_2"/>
     <addaction name="actionModificar_perfil"/>
+    <addaction name="actionSignOut"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -1024,6 +1053,11 @@ border-width: 1px;
   <action name="actionModificar_perfil">
    <property name="text">
     <string>Modificar perfil</string>
+   </property>
+  </action>
+  <action name="actionSignOut">
+   <property name="text">
+    <string>Cerrar sesion</string>
    </property>
   </action>
  </widget>

@@ -10,24 +10,24 @@ ExamManager::ExamManager(QSqlDatabase db)
     this->db = db;
 }
 
-void ExamManager::addByArea(int amount, QString areaName)
+void ExamManager::addByArea(int amount, QStringList areaNames)
 {
-    this->addQuestions("a.AreaName", amount, areaName);
+    this->addQuestions("a.AreaName", amount, areaNames);
 }
 
-void ExamManager::addBySubject(int amount, QString subjectName)
+void ExamManager::addBySubject(int amount, QStringList subjectNames)
 {
-    this->addQuestions("s.SubjectName", amount, subjectName);
+    this->addQuestions("s.SubjectName", amount, subjectNames);
 }
 
-void ExamManager::addByTopic(int amount, QString topicName)
+void ExamManager::addByTopic(int amount, QStringList topicNames)
 {
-    this->addQuestions("t.TopicName", amount, topicName);
+    this->addQuestions("t.TopicName", amount, topicNames);
 }
 
 void ExamManager::addAny(int amount)
 {
-    this->addQuestions("'1'", amount, "1");
+    this->addQuestions("Any", amount, QStringList());
 }
 
 QList<Question> ExamManager::getQuestionList()
@@ -44,17 +44,17 @@ QStringList ExamManager::getDBAreas()
 
     QSqlQuery query;
     query.exec("SELECT AreaName FROM Areas");
-    QStringList areaList;
+    QMap<QString, int> areaList;
 
     while (query.next()) {
-        areaList.push_back(query.value(0).toString());
+        areaList[query.value(0).toString()] = true;
     }
     db.close();
 
-    return areaList;
+    return areaList.keys();
 }
 
-QHash<QString, QStringList> ExamManager::getDBSubjectTree()
+QStringList ExamManager::getDBSubjects(QString area)
 {
     if (!db.open()) {
         qDebug() << "Database not found";
@@ -62,22 +62,23 @@ QHash<QString, QStringList> ExamManager::getDBSubjectTree()
     }
 
     QSqlQuery query;
-    query.exec("SELECT a.AreaName, s.SubjectName\
-               FROM Subjects AS s\
-               INNER JOIN Areas AS a\
-               ON a.AreaID = s.AreaID");
-    QHash<QString, QStringList> subjectTree;
+    query.prepare("SELECT s.SubjectName\
+                   FROM Subjects AS s\
+                   INNER JOIN Areas AS a\
+                   ON a.AreaID = s.AreaID\
+                   WHERE a.AreaName = :name");
+    query.bindValue(":name", area);
+    query.exec();
+    QMap<QString, bool> subjectList;
     while (query.next()) {
-        QString areaName = query.value(0).toString();
-        QString subjectName = query.value(1).toString();
-        subjectTree[areaName].push_back(subjectName);
+        subjectList[query.value(0).toString()] = true;
     }
     db.close();
 
-    return subjectTree;
+    return subjectList.keys();
 }
 
-QHash<QString, QHash<QString, QStringList> > ExamManager::getDBTopicTree()
+QStringList ExamManager::getDBTopics(QString subject)
 {
     if (!db.open()) {
         qDebug() << "Database not found";
@@ -85,27 +86,104 @@ QHash<QString, QHash<QString, QStringList> > ExamManager::getDBTopicTree()
     }
 
     QSqlQuery query;
-    query.exec("SELECT a.AreaName, s.SubjectName, t.TopicName\
-               FROM Topics AS t\
-               INNER JOIN Subjects AS s\
-               ON s.SubjectID = t.SubjectID\
-               INNER JOIN Areas AS a\
-               ON a.AreaID = s.AreaID");
-    QHash<QString, QHash<QString, QStringList> > topicTree;
+    query.prepare("SELECT t.TopicName\
+                   FROM Topics AS t\
+                   INNER JOIN Subjects AS s\
+                   ON s.SubjectID = t.SubjectID\
+                   WHERE s.SubjectName = :name");
+    query.bindValue(":name", subject);
+    query.exec();
+    QMap<QString, bool> topicList;
 
     while (query.next()) {
-        QString areaName = query.value(0).toString();
-        QString subjectName = query.value(1).toString();
-        QString topicName = query.value(2).toString();
-
-        topicTree[areaName][subjectName].push_back(topicName);
+        topicList[query.value(0).toString()] = true;
     }
     db.close();
 
-    return topicTree;
+    return topicList.keys();
 }
 
-void ExamManager::addQuestions(QString column, int amount, QString columnName)
+QStringList ExamManager::getDBTopicsPerArea(QString area)
+{
+    if (!db.open()) {
+        qDebug() << "Database not found";
+        qDebug() << "7";
+    }
+
+    QSqlQuery query;
+    query.prepare("SELECT t.TopicName\
+                   FROM Topics AS t\
+                   INNER JOIN Subjects AS s\
+                   ON s.SubjectID = t.SubjectID\
+                   INNER JOIN Areas AS a\
+                   ON a.AreaID = s.AreaID\
+                   WHERE a.AreaName = :name");
+    query.bindValue(":name", area);
+    query.exec();
+    QMap<QString, bool> topicList;
+
+    while (query.next()) {
+        topicList[query.value(0).toString()] = true;
+    }
+    db.close();
+
+    return topicList.keys();
+}
+
+void ExamManager::clearExamInfo()
+{
+    if (!infoAmount.empty())
+        infoAmount.clear();
+
+    if (!registers.empty())
+        registers.clear();
+}
+
+void ExamManager::addRegister(QString registerName, QStringList registerValue, int amount)
+{
+    registryCount.insert(count++, registerName);
+    registers.insert(registerName, registerValue);
+    infoAmount.insert(registerName, amount);
+}
+
+void ExamManager::removeRegister(QString registerName)
+{
+    infoAmount.remove(registerName);
+    registers.remove(registerName);
+    registryCount.remove(registryCount.key(registerName));
+}
+
+QStringList ExamManager::getRegisterNames()
+{
+    QStringList registryNames;
+    for (int i = 0; i < count; i++) {
+        registryNames.push_back(registryCount.value(i));
+    }
+
+    return registryNames;
+}
+
+QStringList ExamManager::getRegisterValue(QString registerName)
+{
+    return registers[registerName];
+}
+
+int ExamManager::getRegisterAmount(QString registerName)
+{
+    return infoAmount[registerName];
+}
+
+void ExamManager::setTime(int time)
+{
+    this->time = time;
+}
+
+int ExamManager::getTime()
+{
+    return time;
+}
+
+void ExamManager::addQuestions(QString column, int amount, QStringList columnNames)
 {
     if (!db.open()) {
         qDebug() << "Database not found";
@@ -124,12 +202,19 @@ void ExamManager::addQuestions(QString column, int amount, QString columnName)
                           INNER JOIN Subjects AS s\
                           ON s.SubjectID = t.SubjectID\
                           INNER JOIN Areas AS a\
-                          ON a.AreaID = s.AreaID\
-                          WHERE %1 = :columnName\
-                          ORDER BY Random() LIMIT :amount").arg(column);
+                          ON a.AreaID = s.AreaID");
+    if (columnNames.count() > 0) {
+        queryString.append("WHERE ");
+        foreach (QString columnName, columnNames) {
+            queryString.append("%1 = ").arg(column);
+            queryString.append(columnName);
+            queryString.append(" AND ");
+        }
+        queryString.append("TRUE");
+    }
+    queryString.append("ORDER BY Random() LIMIT :amount");
 
     query.prepare(queryString);
-    query.bindValue(":columnName", columnName);
     query.bindValue(":amount", amount);
 
     query.exec();
