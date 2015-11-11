@@ -45,12 +45,32 @@ void MainWindow::on_custonExamBack_clicked()
 
 void MainWindow::on_customExamCreate_clicked()
 {
-
+    ui->stackedWidget->setCurrentWidget(ui->ExamPage);
 }
 
 void MainWindow::on_clearSeleccion_clicked()
 {
     examManager.clearExamInfo();
+    ui->registryList->clear();
+    ui->content->clear();
+}
+
+void MainWindow::on_areaList_itemClicked(QListWidgetItem *item)
+{
+    item->setSelected(false);
+    item->setSelected(true);
+}
+
+void MainWindow::on_subjectList_itemClicked(QListWidgetItem *item)
+{
+    item->setSelected(false);
+    item->setSelected(true);
+}
+
+void MainWindow::on_topicList_itemClicked(QListWidgetItem *item)
+{
+    item->setSelected(false);
+    item->setSelected(true);
 }
 
 void MainWindow::on_areaList_itemSelectionChanged()
@@ -61,27 +81,26 @@ void MainWindow::on_areaList_itemSelectionChanged()
     foreach (QModelIndex index, indexes) {
         areas.push_back(ui->areaList->item(index.row())->text());
     }
-    if (areas.count() == 0 || addingRegistry) return;
+    if (areas.count() == 0) {
+
+        areaSelected = false;
+        return;
+    }
+
+    areaSelected = true;
+
     ui->subjectList->clear();
     ui->topicList->clear();
 
-    if (areas.count() == 1) {
-        areaSaved = areas.at(0);
-        QStringList subjects = examManager.getDBSubjects(areaSaved);
-        QStringList topics = examManager.getDBTopicsPerArea(areaSaved);
+    foreach (QString area, areas) {
+        QStringList subjects = examManager.getDBSubjects(area);
+        QStringList topics = examManager.getDBTopicsPerArea(area);
 
         ui->subjectList->addItems(subjects);
         ui->topicList->addItems(topics);
-    }
 
-    if (areas.count() > 1) {
-        foreach (QString area, areas) {
-            QStringList subjects = examManager.getDBSubjects(area);
-            QStringList topics = examManager.getDBTopicsPerArea(area);
-
-            ui->subjectList->addItems(subjects);
-            ui->topicList->addItems(topics);
-        }
+        ui->subjectList->sortItems();
+        ui->topicList->sortItems();
     }
 
     selected = areas;
@@ -96,25 +115,19 @@ void MainWindow::on_subjectList_itemSelectionChanged()
         subjects.push_back(ui->subjectList->item(index.row())->text());
     }
 
-    if (subjects.count() == 0 || addingRegistry) return;
+    if (subjects.count() == 0) {
+        subjectSelected = false;
+        return;
+    }
+
+    subjectSelected = true;
 
     ui->topicList->clear();
-    QStringList areas = examManager.getDBAreas();
     QStringList topics;
 
-    if (subjects.count() == 1) {
-        topics.append(examManager.getDBTopics(subjects.at(0)));
+    foreach (QString subject, subjects) {
+        topics.append(examManager.getDBTopics(subject));
     }
-
-    if (subjects.count() > 1) {
-        foreach (QString subject, subjects) {
-            topics.append(examManager.getDBTopics(subject));
-        }
-    }
-
-    ui->areaList->clear();
-    ui->areaList->addItems(areas);
-
 
     ui->topicList->addItems(topics);
     ui->topicList->sortItems();
@@ -131,18 +144,7 @@ void MainWindow::on_topicList_itemSelectionChanged()
         topics.push_back(ui->topicList->item(index.row())->text());
     }
 
-    if (topics.count() == 0 || addingRegistry) return;
-
-    if (topics.count() == 1) {
-        QStringList areas = examManager.getDBAreas();
-        QStringList subjects = examManager.getDBSubjects(areaSaved);
-
-        ui->areaList->clear();
-        ui->subjectList->clear();
-
-        ui->areaList->addItems(areas);
-        ui->subjectList->addItems(subjects);
-    }
+    if (topics.count() == 0) return;
 
     selected = topics;
 }
@@ -150,48 +152,98 @@ void MainWindow::on_topicList_itemSelectionChanged()
 
 void MainWindow::on_addRegistry_clicked()
 {
-    addingRegistry = true;
-
-    bool isAreaSelected = false;
-    for (int i = 0; i < ui->areaList->count(); i++) {
-        QListWidgetItem *item = ui->areaList->item(i);
-        if (ui->areaList->isItemSelected(item)) isAreaSelected = true;
-    }
-
-    bool isSubjectSelected = false;
-    for (int i = 0; i < ui->subjectList->count(); i++) {
-        QListWidgetItem *item = ui->subjectList->item(i);
-        if (ui->subjectList->isItemSelected(item)) isSubjectSelected = true;
-    }
-
-    bool isTopicSelected = false;
-    for (int i = 0; i < ui->topicList->count(); i++) {
-        QListWidgetItem *item = ui->topicList->item(i);
-        if (ui->topicList->isItemSelected(item)) isTopicSelected = true;
-    }
-
-    if (!(isAreaSelected || isSubjectSelected || isTopicSelected)) {
-        return;
-    }
+    if (!isSomethingSelected()) return;
 
     RegistryDialog registryDialog(this, selected);
     registryDialog.setModal(true);
     registryDialog.setFixedSize(registryDialog.size());
     registryDialog.exec();
 
-    QString registryName;
-    int amount = registryDialog.getAmountOfQuestions();
-    if (selected.count() == 1)
-        registryName = selected.at(0);
-    else
-        registryName.append("Grupo " + QString::number(groups++));
+    if (!registryDialog.isCorrect()) return;
 
-    if (isAreaSelected) selected.push_front("Area");
-    if (isSubjectSelected) selected.push_front("Subject");
-    if (isTopicSelected) selected.push_front("Topic");
+    if (registryDialog.isSeparated()) {
 
-    examManager.addRegister(registryName, selected, amount);
+    } else {
+        QStringList registryValue = selected;
+        QString registryName;
+        int amount = registryDialog.getAmountOfQuestions();
+        if (selected.count() == 1)
+            registryName = selected.at(0);
+        else
+            registryName.append("Grupo " + QString::number(groups++));
 
+        if (isTopicSelected()) registryValue.push_front("Topic");
+        else if (isSubjectSelected()) registryValue.push_front("Subject");
+        else if (isAreaSelected()) registryValue.push_front("Area");
+
+        examManager.addRegister(registryName, registryValue, amount);
+
+        ui->registryList->addItem(registryName);
+    }
+}
+
+void MainWindow::on_registryList_itemClicked(QListWidgetItem *item)
+{
+    QStringList contentList = examManager.getRegisterValue(item->text());
+    contentList.pop_front();
+
+    ui->content->clear();
+
+    foreach (QString item, contentList) {
+        ui->content->append(item);
+    }
+}
+
+bool MainWindow::isSomethingSelected()
+{
+    return isAreaSelected() || isSubjectSelected() || isTopicSelected();
+}
+
+bool MainWindow::isAreaSelected()
+{
+    bool isAreaSelected = false;
+    for (int i = 0; i < ui->areaList->count(); i++) {
+        QListWidgetItem *item = ui->areaList->item(i);
+        if (ui->areaList->isItemSelected(item)) isAreaSelected = true;
+    }
+
+    return isAreaSelected;
+}
+
+bool MainWindow::isSubjectSelected()
+{
+    bool isSubjectSelected = false;
+    for (int i = 0; i < ui->subjectList->count(); i++) {
+        QListWidgetItem *item = ui->subjectList->item(i);
+        if (ui->subjectList->isItemSelected(item)) isSubjectSelected = true;
+    }
+
+    return isSubjectSelected;
+}
+
+bool MainWindow::isTopicSelected()
+{
+    bool isTopicSelected = false;
+    for (int i = 0; i < ui->topicList->count(); i++) {
+        QListWidgetItem *item = ui->topicList->item(i);
+        if (ui->topicList->isItemSelected(item)) isTopicSelected = true;
+    }
+
+    return isTopicSelected;
+}
+
+void MainWindow::on_editRegistry_clicked()
+{
+
+}
+
+void MainWindow::on_removeRegistry_clicked()
+{
+
+}
+
+void MainWindow::clearSelections()
+{
     for (int i = 0; i < ui->areaList->count(); i++) {
         QListWidgetItem *item = ui->areaList->item(i);
         item->setSelected(false);
@@ -207,11 +259,9 @@ void MainWindow::on_addRegistry_clicked()
         item->setSelected(false);
     }
 
-    ui->registryList->clear();
-    ui->registryList->addItems(examManager.getRegisterNames());
-
-    addingRegistry = false;
+    selected.clear();
 }
+
 
 
 

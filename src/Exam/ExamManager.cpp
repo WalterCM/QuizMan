@@ -137,6 +137,11 @@ void ExamManager::clearExamInfo()
 
     if (!registers.empty())
         registers.clear();
+
+    if (!registryCount.empty())
+        registryCount.clear();
+
+    count = 0;
 }
 
 void ExamManager::addRegister(QString registerName, QStringList registerValue, int amount)

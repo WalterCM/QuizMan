@@ -132,7 +132,7 @@ QComboBox
     border-style: solid;
     border: 1px solid #1e1e1e;
     border-radius: 5;
-	padding-top: 3px;
+    padding-top: 3px;
     padding-left: 4px;
     background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #565656, stop: 0.1 #525252, stop: 0.5 #4e4e4e, stop: 0.9 #4a4a4a, stop: 1 #464646);
     selection-background-color: #ffaa00;
@@ -153,7 +153,7 @@ QComboBox:on
 
 QComboBox QAbstractItemView
 {
-	color: white;
+    color: white;
     border: 2px solid darkgray;
     selection-background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffa02f, stop: 1 #d7801a);
 }
@@ -173,7 +173,7 @@ QComboBox::drop-down
 
 QComboBox::down-arrow
 {
-     image: url(:/down_arrow.png);
+     icons: url(:/down_arrow.png);
 }
 
 QGroupBox:focus
@@ -349,7 +349,7 @@ QMainWindow::separator:hover
 QToolBar::handle
 {
      spacing: 3px; /* spacing between items in the tool bar */
-     background: url(:/images/handle.png);
+     background: url(:/icons/handle.png);
 }
 
 QMenu::separator
@@ -469,7 +469,7 @@ QRadioButton::indicator:hover, QCheckBox::indicator:hover
 
 QCheckBox::indicator:checked
 {
-    image:url(:/images/checkbox.png);
+    icons:url(:/icons/checkbox.png);
 }
 
 QCheckBox::indicator:disabled, QRadioButton::indicator:disabled

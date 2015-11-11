@@ -16,12 +16,18 @@ public:
     ~RegistryDialog();
 
     int getAmountOfQuestions();
+    bool isCorrect();
+    bool isSeparated();
 private slots:
-    void on_pushButton_clicked();
+    void on_registryDialogOk_clicked();
 
+    void on_registryDialogCancel_clicked();
 private:
     Ui::RegistryDialog *ui;
     int amount;
+
+    bool correct = false;
+    bool separate = false;
 };
 
 #endif // REGISTRYDIALOG_HPP
