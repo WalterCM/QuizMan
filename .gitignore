@@ -10,5 +10,8 @@ QuizMan
 # build folder
 build*
 
-# 
+# qt user configuration files
 *.pro.user
+
+# qt autosave files
+*.autosave
