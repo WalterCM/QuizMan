@@ -485,12 +485,6 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
     <item row="0" column="0" rowspan="3" colspan="3">
      <layout class="QHBoxLayout" name="horizontalLayout_3"/>
     </item>
-    <item row="1" column="1" rowspan="3" colspan="3">
-     <layout class="QHBoxLayout" name="horizontalLayout_4"/>
-    </item>
-    <item row="2" column="2" rowspan="2" colspan="2">
-     <layout class="QHBoxLayout" name="horizontalLayout_2"/>
-    </item>
     <item row="3" column="3">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="styleSheet">
@@ -826,12 +820,29 @@ border-width: 1px;
            <widget class="QTextBrowser" name="content"/>
           </item>
           <item>
-           <widget class="QTextBrowser" name="textBrowser"/>
+           <widget class="QTextBrowser" name="examSummary"/>
           </item>
          </layout>
         </item>
         <item row="5" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QCheckBox" name="cronometerCheckBox">
+            <property name="text">
+             <string>Cronometro (minutos)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="cronometerMinutes">
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
           <item>
            <spacer name="horizontalSpacer_3">
             <property name="orientation">
@@ -853,9 +864,16 @@ border-width: 1px;
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="customExamSave">
+            <property name="text">
+             <string>Guardar</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="customExamCreate">
             <property name="text">
-             <string>Crear</string>
+             <string>Empezar</string>
             </property>
            </widget>
           </item>
@@ -863,8 +881,41 @@ border-width: 1px;
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="ExamPage"/>
+      <widget class="QWidget" name="ExamPage">
+       <layout class="QGridLayout" name="gridLayout_8">
+        <item row="2" column="0">
+         <widget class="QTabWidget" name="tabWidget">
+          <widget class="QWidget" name="tab">
+           <attribute name="title">
+            <string>Tab 1</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="tab_2">
+           <attribute name="title">
+            <string>Tab 2</string>
+           </attribute>
+          </widget>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="comboBox"/>
+        </item>
+        <item row="0" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_12">
+          <item>
+           <widget class="QLCDNumber" name="cronometer"/>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
      </widget>
+    </item>
+    <item row="1" column="1" rowspan="3" colspan="3">
+     <layout class="QHBoxLayout" name="horizontalLayout_4"/>
+    </item>
+    <item row="2" column="2" rowspan="2" colspan="2">
+     <layout class="QHBoxLayout" name="horizontalLayout_2"/>
     </item>
    </layout>
   </widget>

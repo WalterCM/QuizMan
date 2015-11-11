@@ -13,6 +13,7 @@ RegistryDialog::RegistryDialog(QWidget *parent, QStringList registryList) :
     }
 
     ui->amountText->setValidator(new QIntValidator(0, 1000, this));
+    if (registryList.count() == 1) ui->separateCheckBox->setCheckable(false);
 }
 
 RegistryDialog::~RegistryDialog()
@@ -40,7 +41,7 @@ void RegistryDialog::on_registryDialogOk_clicked()
 {
     if (ui->amountText->text() == "") {
         QMessageBox messageBox;
-        messageBox.critical(0,"Error","Ingrese el numero de preguntas");
+        messageBox.critical(this,"Error","Ingrese el numero de preguntas");
         messageBox.setFixedSize(500,200);
 
         return;

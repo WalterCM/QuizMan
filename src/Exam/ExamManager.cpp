@@ -1,5 +1,6 @@
 
 #include <QList>
+#include <QStringList>
 #include "include/Exam/ExamManager.hpp"
 
 ExamManager::ExamManager()
@@ -8,6 +9,20 @@ ExamManager::ExamManager()
 ExamManager::ExamManager(QSqlDatabase db)
 {
     this->db = db;
+}
+
+void ExamManager::createExam()
+{
+    foreach (int index, registryCount.keys()) {
+        QStringList list = registers[index];
+        QString criteria = list.takeFirst();
+        if (criteria == "Area")
+            addByArea(infoAmount[index], list);
+        else if (criteria == "Subject")
+            addBySubject(infoAmount[index], list);
+        else if (criteria == "Topic")
+            addByTopic(infoAmount[index], list);
+    }
 }
 
 void ExamManager::addByArea(int amount, QStringList areaNames)
@@ -33,6 +48,15 @@ void ExamManager::addAny(int amount)
 QList<Question> ExamManager::getQuestionList()
 {
     return this->exam.getQuestions();
+}
+
+int ExamManager::getAmountQuestions()
+{
+    int amount = 0;
+    foreach (int amounts, infoAmount.values())
+        amount += amounts;
+
+    return amount;
 }
 
 QStringList ExamManager::getDBAreas()
@@ -144,21 +168,38 @@ void ExamManager::clearExamInfo()
     count = 0;
 }
 
-void ExamManager::addRegister(QString registerName, QStringList registerValue, int amount)
+void ExamManager::addRegistry(QString registryName, QStringList registtrValue, int amount)
 {
-    registryCount.insert(count++, registerName);
-    registers.insert(registerName, registerValue);
-    infoAmount.insert(registerName, amount);
+    registryCount.insert(count, registryName);
+    registers.insert(count, registtrValue);
+    infoAmount.insert(count++, amount);
 }
 
-void ExamManager::removeRegister(QString registerName)
+void ExamManager::removeRegistry(QString registryName)
 {
-    infoAmount.remove(registerName);
-    registers.remove(registerName);
-    registryCount.remove(registryCount.key(registerName));
+    int oldCount = count;
+    count = registryCount.key(registryName);
+    infoAmount.remove(count);
+    registers.remove(count);
+    registryCount.remove(count);
+
+    for (int i = count; i < oldCount - 1; i++) {
+        registryCount[i] = registryCount[i + 1];
+        registers[i] = registers[i + 1];
+        infoAmount[i] = infoAmount[i + 1];
+    }
 }
 
-QStringList ExamManager::getRegisterNames()
+void ExamManager::editRegistry(QString oldName, QString newName,
+                               QStringList newValues, int newAmount)
+{
+    int index = registryCount.key(oldName);
+    registryCount[index] = newName;
+    registers[index] = newValues;
+    infoAmount[index] = newAmount;
+}
+
+QStringList ExamManager::getRegistryNames()
 {
     QStringList registryNames;
     for (int i = 0; i < count; i++) {
@@ -168,14 +209,24 @@ QStringList ExamManager::getRegisterNames()
     return registryNames;
 }
 
-QStringList ExamManager::getRegisterValue(QString registerName)
+QStringList ExamManager::getRegistryValues(QString registryName)
 {
-    return registers[registerName];
+    return registers[registryCount.key(registryName)];
 }
 
-int ExamManager::getRegisterAmount(QString registerName)
+int ExamManager::getRegistryAmount(QString registryName)
 {
-    return infoAmount[registerName];
+    return infoAmount[registryCount.key(registryName)];
+}
+
+QStringList ExamManager::getSummary()
+{
+    QStringList summary;
+    summary << ("<b>Cronometro: " + QString::number(time));
+    summary << ("<b>Cantidad de secciones: </b>" + QString::number(count));
+    summary << ("<b>Cantidad de preguntas: </b>" + QString::number(getAmountQuestions()));
+
+    return summary;
 }
 
 void ExamManager::setTime(int time)
