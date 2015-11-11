@@ -20,17 +20,32 @@ set(QuizMan_SOURCES
         src/IntroWindow.cpp
         src/MainWindow.cpp
         src/Account/AccountManager.cpp
-        src/Account/UserAccount.cpp)
+        src/Account/UserAccount.cpp
+        src/Exam/QuizManExam.cpp
+        src/Exam/Question.cpp
+        src/Exam/Option.cpp
+        src/Exam/ExamManager.cpp
+        src/RegistryDialog.cpp
+        src/RegistryEdit.cpp)
 set(QuizMan_FORMS
         resources/ui/MainWindow.ui
-        resources/ui/IntroWindow.ui)
+        resources/ui/IntroWindow.ui
+        resources/ui/RegistryDialog.ui
+        resources/ui/RegistryEdit.ui)
 set(QuizMan_HEADERS
         include/IntroWindow.hpp
         include/MainWindow.hpp
         include/Account/AccountManager.hpp
         include/Account/UserAccount.hpp
         include/Account.hpp
-        include/ProgramConstants.hpp)
+        include/ProgramConstants.hpp
+        include/Exam/QuizManExam.hpp
+        include/Exam/Question.hpp
+        include/Exam/Option.hpp
+        include/Exam/ExamManager.hpp
+        include/Exam.hpp
+        include/RegistryDialog.hpp
+        include/RegistryEdit.hpp)
 set(UI_RESOURCES
         resources/resources.qrc
 )
