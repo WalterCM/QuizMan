@@ -222,7 +222,7 @@ int ExamManager::getRegistryAmount(QString registryName)
 QStringList ExamManager::getSummary()
 {
     QStringList summary;
-    summary << ("<b>Cronometro: " + QString::number(time));
+    summary << ("<b>Cronometro: " + QString::number(time) + " minutos");
     summary << ("<b>Cantidad de secciones: </b>" + QString::number(count));
     summary << ("<b>Cantidad de preguntas: </b>" + QString::number(getAmountQuestions()));
 

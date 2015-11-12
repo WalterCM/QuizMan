@@ -4,6 +4,7 @@
 #include "include/MainWindow.hpp"
 #include "include/RegistryDialog.hpp"
 #include "include/RegistryEdit.hpp"
+#include "include/QuestionForm.hpp"
 
 MainWindow::MainWindow(QString accountName, QSqlDatabase database) :
     ui(new Ui::MainWindow),
@@ -28,6 +29,8 @@ void MainWindow::on_createCustonExamButton_clicked()
     ui->addRegistry->setEnabled(false);
     ui->editRegistry->setEnabled(false);
     ui->removeRegistry->setEnabled(false);
+    ui->customExamSave->setEnabled(false);
+    ui->customExamCreate->setEnabled(false);
 
     ui->areaList->setDragDropMode(QAbstractItemView::DropOnly);
     ui->areaList->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -74,10 +77,18 @@ void MainWindow::on_customExamCreate_clicked()
     hours = t / 60;
     minutes = t % 60;
     seconds = 1;
-    qDebug() << "h: " << hours << " m: " << minutes << " s: " << seconds;
 
     ui->cronometer->setDigitCount(8);
     startCronometer();
+
+    foreach (QString sectionName, examManager.getRegistryNames()) {
+        QWidget *page = new QWidget();
+
+        page->setLayout(new QGridLayout());
+        page->layout()->addWidget(new QuestionForm());
+
+        ui->examArea->addTab(page, sectionName);
+    }
 }
 
 void MainWindow::on_clearSeleccion_clicked()
@@ -206,13 +217,8 @@ void MainWindow::on_topicList_itemSelectionChanged()
 
 void MainWindow::on_registryList_itemSelectionChanged()
 {
-    if (ui->registryList->count() == 0) {
-        ui->editRegistry->setEnabled(false);
-        ui->removeRegistry->setEnabled(false);
-    } else {
-        ui->editRegistry->setEnabled(true);
-        ui->removeRegistry->setEnabled(true);
-    }
+    ui->editRegistry->setEnabled(isRegistrySelected());
+    ui->removeRegistry->setEnabled(isRegistrySelected());
 }
 
 void MainWindow::on_addRegistry_clicked()
@@ -234,6 +240,8 @@ void MainWindow::on_addRegistry_clicked()
 
     if (!registryDialog.isCorrect()) return;
 
+    ui->customExamSave->setEnabled(true);
+    ui->customExamCreate->setEnabled(true);
     if (registryDialog.isSeparated()) {
         int amount = registryDialog.getAmountOfQuestions();
         foreach (QString item, selected) {
@@ -304,6 +312,11 @@ void MainWindow::on_removeRegistry_clicked()
     ui->content->clear();
 
     updateSummary();
+
+    if (ui->registryList->count() == 0) {
+        ui->customExamSave->setEnabled(false);
+        ui->customExamCreate->setEnabled(false);
+    }
 }
 
 void MainWindow::on_registryList_itemClicked(QListWidgetItem *item)
@@ -326,7 +339,8 @@ void MainWindow::on_cronometerCheckBox_clicked(bool checked)
     ui->cronometerMinutes->setEnabled(checked);
     examManager.setTime(ui->cronometerMinutes->text().toInt() * checked);
 
-    updateSummary();
+    if (ui->registryList->count() == 1)
+        updateSummary();
 }
 
 void MainWindow::on_cronometerMinutes_textEdited(const QString &arg1)
@@ -455,12 +469,8 @@ void MainWindow::updateCronometer()
 
     seconds--;
 
-    qDebug() << "hours: " << hours << " minutes: " << minutes << " seconds: " << seconds;
     time.setHMS(hours, minutes, seconds, 0);
     QString text = time.toString("hh:mm:ss");
-    qDebug() << "time.hour: " << time.hour();
-    qDebug() << "time.minute: " << time.minute();
-    qDebug() << "time.second: " << time.second();
     if ((time.second() % 2) == 0) {
         text[2] = ' ';
         text[5] = ' ';

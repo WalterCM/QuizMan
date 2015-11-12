@@ -482,10 +482,13 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_7">
-    <item row="0" column="0" rowspan="3" colspan="3">
+    <item row="0" column="0" colspan="2">
      <layout class="QHBoxLayout" name="horizontalLayout_3"/>
     </item>
-    <item row="3" column="3">
+    <item row="1" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout_2"/>
+    </item>
+    <item row="1" column="1">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="styleSheet">
        <string notr="true"/>
@@ -883,20 +886,6 @@ border-width: 1px;
       </widget>
       <widget class="QWidget" name="ExamPage">
        <layout class="QGridLayout" name="gridLayout_8">
-        <item row="2" column="0">
-         <widget class="QTabWidget" name="tabWidget">
-          <widget class="QWidget" name="tab">
-           <attribute name="title">
-            <string>Tab 1</string>
-           </attribute>
-          </widget>
-          <widget class="QWidget" name="tab_2">
-           <attribute name="title">
-            <string>Tab 2</string>
-           </attribute>
-          </widget>
-         </widget>
-        </item>
         <item row="1" column="1">
          <widget class="QComboBox" name="comboBox"/>
         </item>
@@ -907,17 +896,21 @@ border-width: 1px;
           </item>
          </layout>
         </item>
+        <item row="2" column="0">
+         <widget class="QTabWidget" name="examArea">
+          <property name="currentIndex">
+           <number>-1</number>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </widget>
     </item>
-    <item row="1" column="1" rowspan="3" colspan="3">
-     <layout class="QHBoxLayout" name="horizontalLayout_4"/>
-    </item>
-    <item row="2" column="2" rowspan="2" colspan="2">
-     <layout class="QHBoxLayout" name="horizontalLayout_2"/>
-    </item>
    </layout>
+   <widget class="QWidget" name="">
+    <layout class="QHBoxLayout" name="horizontalLayout_4"/>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -925,7 +918,7 @@ border-width: 1px;
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuEdit">
