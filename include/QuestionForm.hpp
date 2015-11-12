@@ -15,6 +15,8 @@ public:
     explicit QuestionForm(QWidget *parent = 0);
     ~QuestionForm();
 
+    void setQuestion(QString question);
+    void addAlternative(QString alternative);
 private:
     Ui::QuestionForm *ui;
 };

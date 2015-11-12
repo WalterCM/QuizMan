@@ -1,3 +1,4 @@
+#include <QDebug>
 #include "include/Exam/Question.hpp"
 
 void Question::setID(int id)

@@ -478,8 +478,39 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
 }</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" rowspan="2">
+   <item row="0" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Nombre de registro</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="registryNameBox"/>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
     <widget class="QTextBrowser" name="registryOutput"/>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Cantidad de&lt;br&gt;preguntas</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLineEdit" name="amountText"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QCheckBox" name="separateCheckBox">
+     <property name="text">
+      <string>Separar registros</string>
+     </property>
+    </widget>
    </item>
    <item row="3" column="0">
     <spacer name="horizontalSpacer">
@@ -505,23 +536,6 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
     <widget class="QPushButton" name="registryDialogOk">
      <property name="text">
       <string>Aceptar</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Cantidad de&lt;br&gt;preguntas</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QLineEdit" name="amountText"/>
-   </item>
-   <item row="2" column="0">
-    <widget class="QCheckBox" name="separateCheckBox">
-     <property name="text">
-      <string>Separar registros</string>
      </property>
     </widget>
    </item>

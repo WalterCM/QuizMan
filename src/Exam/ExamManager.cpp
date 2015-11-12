@@ -15,13 +15,14 @@ void ExamManager::createExam()
 {
     foreach (int index, registryCount.keys()) {
         QStringList list = registers[index];
-        QString criteria = list.takeFirst();
-        if (criteria == "Area")
+        QString criteria = registryCriteria[index];
+        if (criteria == "Area") {
             addByArea(infoAmount[index], list);
-        else if (criteria == "Subject")
+        } else if (criteria == "Subject") {
             addBySubject(infoAmount[index], list);
-        else if (criteria == "Topic")
+        } else if (criteria == "Topic") {
             addByTopic(infoAmount[index], list);
+        }
     }
 }
 
@@ -48,6 +49,24 @@ void ExamManager::addAny(int amount)
 QList<Question> ExamManager::getQuestionList()
 {
     return this->exam.getQuestions();
+}
+
+QList<Question> ExamManager::getQuestionList(int lo, int hi)
+{
+    QList<Question> questions = exam.getQuestions();
+    QList<Question> section;
+
+    for (int i = lo; i < hi; i++) {
+        section.push_back(questions.at(i));
+    }
+
+    return section;
+}
+
+Question ExamManager::getQuestionAt(int index)
+{
+    QList<Question> questions = exam.getQuestions();
+    return questions.at(index);
 }
 
 int ExamManager::getAmountQuestions()
@@ -154,6 +173,53 @@ QStringList ExamManager::getDBTopicsPerArea(QString area)
     return topicList.keys();
 }
 
+int ExamManager::getDBAmountQuestions(QString column, QStringList columnNames)
+{
+    if (!db.open()) {
+        qDebug() << "Database not found";
+        qDebug() << "10";
+        return 0;
+    }
+
+    if (column == "Topic")
+        column = "t.TopicName";
+    else if (column == "Subject")
+        column = "s.SubjectName";
+    else if (column == "Area")
+        column = "a.AreaName";
+
+    QSqlQuery query;
+    QString queryString;
+    queryString = QString("SELECT COUNT(*)\
+                          FROM Questions AS q\
+                          INNER JOIN TopicsQuestions AS tq\
+                          ON tq.QuestionID = q.QuestionID\
+                          INNER JOIN Topics AS t\
+                          ON t.TopicID = tq.TopicID\
+                          INNER JOIN Subjects AS s\
+                          ON s.SubjectID = t.SubjectID\
+                          INNER JOIN Areas AS a\
+                          ON a.AreaID = s.AreaID");
+
+    if (columnNames.count() > 0) {
+        queryString.append(" WHERE ");
+        foreach (QString columnName, columnNames) {
+            queryString.append(column + " = '" + columnName);
+            queryString.append("' OR ");
+        }
+        queryString.append("NULL");
+    }
+
+    query.exec(queryString);
+
+    query.next();
+    int amount = query.value(0).toInt();
+
+    db.close();
+
+    return amount;
+}
+
 void ExamManager::clearExamInfo()
 {
     if (!infoAmount.empty())
@@ -168,17 +234,20 @@ void ExamManager::clearExamInfo()
     count = 0;
 }
 
-void ExamManager::addRegistry(QString registryName, QStringList registtrValue, int amount)
+void ExamManager::addRegistry(QString registryName, QStringList registtrValue,
+                              int amount, QString criteria)
 {
     registryCount.insert(count, registryName);
     registers.insert(count, registtrValue);
-    infoAmount.insert(count++, amount);
+    infoAmount.insert(count, amount);
+    registryCriteria.insert(count++, criteria);
 }
 
 void ExamManager::removeRegistry(QString registryName)
 {
     int oldCount = count;
     count = registryCount.key(registryName);
+    registryCriteria.remove(count);
     infoAmount.remove(count);
     registers.remove(count);
     registryCount.remove(count);
@@ -211,7 +280,7 @@ QStringList ExamManager::getRegistryNames()
 
 QStringList ExamManager::getRegistryValues(QString registryName)
 {
-    return registers[registryCount.key(registryName)];
+    return registers[registryCount.key(registryName)];;
 }
 
 int ExamManager::getRegistryAmount(QString registryName)
@@ -259,22 +328,21 @@ void ExamManager::addQuestions(QString column, int amount, QStringList columnNam
                           ON s.SubjectID = t.SubjectID\
                           INNER JOIN Areas AS a\
                           ON a.AreaID = s.AreaID");
-    if (columnNames.count() > 0) {
-        queryString.append("WHERE ");
-        foreach (QString columnName, columnNames) {
-            queryString.append("%1 = ").arg(column);
-            queryString.append(columnName);
-            queryString.append(" AND ");
-        }
-        queryString.append("TRUE");
-    }
-    queryString.append("ORDER BY Random() LIMIT :amount");
 
+    if (columnNames.count() > 0) {
+        queryString.append(" WHERE ");
+        foreach (QString columnName, columnNames) {
+            queryString.append(column + " = '" + columnName);
+            queryString.append("' OR ");
+        }
+        queryString.append("NULL ");
+    }
+
+    queryString.append("ORDER BY Random() LIMIT :amount");
     query.prepare(queryString);
     query.bindValue(":amount", amount);
 
     query.exec();
-
     while (query.next()) {
         Question question;
         QString area, subject, description;
@@ -299,7 +367,6 @@ Question ExamManager::getQuestion(int questionID, QString questionDescription)
     query.bindValue(":ID", questionID);
     query.exec();
     while (query.next()) {
-        qDebug() << "Descripcion de opcion: " << query.value(0).toString();
         Option option;
         option.setDescription(query.value(0).toString());
         option.setTruthValue(query.value(1).toBool());

@@ -1,5 +1,6 @@
 
 #include <QMessageBox>
+#include <QScrollArea>
 #include "ui_MainWindow.h"
 #include "include/MainWindow.hpp"
 #include "include/RegistryDialog.hpp"
@@ -80,12 +81,34 @@ void MainWindow::on_customExamCreate_clicked()
 
     ui->cronometer->setDigitCount(8);
     startCronometer();
-
+    int index = 0;
     foreach (QString sectionName, examManager.getRegistryNames()) {
         QWidget *page = new QWidget();
 
         page->setLayout(new QGridLayout());
-        page->layout()->addWidget(new QuestionForm());
+
+        QScrollArea *area = new QScrollArea();
+        area->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        area->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
+        QWidget *contents = new QWidget();
+        area->setWidget(contents);
+
+        QVBoxLayout *layout = new QVBoxLayout;
+
+        contents->setLayout(layout);
+
+        area->setWidgetResizable(true);;
+
+        for (int i = 0; i < examManager.getRegistryAmount(sectionName); i++) {
+            QuestionForm *form = new QuestionForm();
+            form->setQuestion(QString::number(index + i + 1) + ". " +
+                              examManager.getQuestionAt(index + i).getDescription());
+            layout->addWidget(form);
+        }
+        index += examManager.getRegistryAmount(sectionName);
+
+        page->layout()->addWidget(area);
 
         ui->examArea->addTab(page, sectionName);
     }
@@ -226,14 +249,25 @@ void MainWindow::on_addRegistry_clicked()
     if (!isSomethingSelected()) return;
 
     QStringList selected;
-    if (isTopicSelected())
+    QString criteria;
+    if (isTopicSelected()) {
         selected = topicSelected;
-    else if (isSubjectSelected())
+        criteria = "Topic";
+    } else if (isSubjectSelected()){
         selected = subjectSelected;
-    else if (isAreaSelected())
+        criteria = "Subject";
+    } else if (isAreaSelected()) {
         selected = areaSelected;
+        criteria = "Area";
+    }
 
-    RegistryDialog registryDialog(this, selected);
+    foreach (QString s, selected)
+        qDebug() << "selected: " << s;
+
+    QString registryName = ("Seccion " + QString::number(groups));
+
+    int maxAmount = examManager.getDBAmountQuestions(criteria, selected);
+    RegistryDialog registryDialog(this, registryName, selected, maxAmount);
     registryDialog.setModal(true);
     registryDialog.setFixedSize(registryDialog.size());
     registryDialog.exec();
@@ -242,34 +276,23 @@ void MainWindow::on_addRegistry_clicked()
 
     ui->customExamSave->setEnabled(true);
     ui->customExamCreate->setEnabled(true);
+
     if (registryDialog.isSeparated()) {
         int amount = registryDialog.getAmountOfQuestions();
         foreach (QString item, selected) {
             QStringList registryValue;
             registryValue.push_back(item);
-            QString registryName = item;
-            if (isTopicSelected()) registryValue.push_front("Topic");
-            else if (isSubjectSelected()) registryValue.push_front("Subject");
-            else if (isAreaSelected()) registryValue.push_front("Area");
-
-            examManager.addRegistry(registryName, registryValue, amount);
+            registryName = "";
+            registryName.append("Seccion " + QString::number(groups++));
+            examManager.addRegistry(registryName, registryValue, amount, criteria);
 
             ui->registryList->addItem(registryName);
         }
     } else {
         QStringList registryValue = selected;
-        QString registryName;
         int amount = registryDialog.getAmountOfQuestions();
-        if (selected.count() == 1)
-            registryName = selected.at(0);
-        else
-            registryName.append("Grupo " + QString::number(groups++));
-
-        if (isTopicSelected()) registryValue.push_front("Topic");
-        else if (isSubjectSelected()) registryValue.push_front("Subject");
-        else if (isAreaSelected()) registryValue.push_front("Area");
-
-        examManager.addRegistry(registryName, registryValue, amount);
+        registryName = registryDialog.getRegistryName();
+        examManager.addRegistry(registryName, registryValue, amount, criteria);
 
         ui->registryList->addItem(registryName);
     }
@@ -322,7 +345,6 @@ void MainWindow::on_removeRegistry_clicked()
 void MainWindow::on_registryList_itemClicked(QListWidgetItem *item)
 {
     QStringList contentList = examManager.getRegistryValues(item->text());
-    contentList.pop_front();
 
     ui->content->clear();
     QString amount = QString::number(examManager.getRegistryAmount(item->text()));

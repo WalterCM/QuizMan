@@ -10,7 +10,6 @@ RegistryEdit::RegistryEdit(QWidget *parent, QString registryName, QStringList re
 
     ui->registryNameEdit->setText(registryName);
 
-    this->criteria = registryValues.takeFirst();
     foreach (QString value, registryValues) {
         QListWidgetItem *item = new QListWidgetItem(value);
         ui->registryValuesEdit->addItem(item);
@@ -38,7 +37,6 @@ QString RegistryEdit::getRegistryName()
 QStringList RegistryEdit::getRegistryValues()
 {
     QStringList registryValues;
-    registryValues << criteria;
     for (int i = 0; i < ui->registryValuesEdit->count(); i++) {
         registryValues << ui->registryValuesEdit->item(i)->text();
     }

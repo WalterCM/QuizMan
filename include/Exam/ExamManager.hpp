@@ -18,15 +18,19 @@ public:
     void addAny(int amount);
 
     QList<Question> getQuestionList();
+    QList<Question> getQuestionList(int lo, int hi);
+    Question getQuestionAt(int index);
+
     int getAmountQuestions();
 
     QStringList getDBAreas();
     QStringList getDBSubjects(QString area);
     QStringList getDBTopics(QString subject);
     QStringList getDBTopicsPerArea(QString area);
+    int getDBAmountQuestions(QString column, QStringList columnNames);
 
     void clearExamInfo();
-    void addRegistry(QString registryName, QStringList registtrValue, int amount);
+    void addRegistry(QString registryName, QStringList registtrValue, int amount, QString criteria);
     void removeRegistry(QString registryName);
     void editRegistry(QString oldName, QString newName,
                       QStringList newValues, int newAmount);
@@ -52,6 +56,7 @@ private:
     QHash<int, QString> registryCount;
     QHash<int, QStringList> registers;
     QHash<int, int> infoAmount;
+    QHash<int, QString> registryCriteria;
 };
 
 #endif // EXAMMANAGER_HPP

@@ -908,7 +908,15 @@ border-width: 1px;
      </widget>
     </item>
    </layout>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>100</width>
+      <height>30</height>
+     </rect>
+    </property>
     <layout class="QHBoxLayout" name="horizontalLayout_4"/>
    </widget>
   </widget>
@@ -918,7 +926,7 @@ border-width: 1px;
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuEdit">
