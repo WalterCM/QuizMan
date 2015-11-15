@@ -56,6 +56,8 @@ private:
     void clearSubjects();
     void clearTopics();
 
+    void amountError(int maxAmount);
+
     void updateSummary();
 
     void startCronometer();

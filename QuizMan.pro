@@ -24,7 +24,8 @@ SOURCES += src/Main.cpp\
         src/Exam/ExamManager.cpp \
         src/RegistryDialog.cpp \
         src/RegistryEdit.cpp \
-        src/QuestionForm.cpp
+        src/QuestionForm.cpp \
+        src/QuestionEditor.cpp
 
 HEADERS  += include/IntroWindow.hpp \
         include/Account.hpp \
@@ -40,14 +41,16 @@ HEADERS  += include/IntroWindow.hpp \
         include/RegistryDialog.hpp \
         include/RegistryEdit.hpp \
         include/QuestionForm.hpp \
-        include/QuestionForm.hpp
+        include/QuestionForm.hpp \
+        include/QuestionEditor.hpp
 
 FORMS    += resources/ui/IntroWindow.ui \
-            resources/ui/MainWindow.ui \
-            resources/ui/RegistryDialog.ui \
-            resources/ui/RegistryEdit.ui \
-            resources/ui/QuestionForm.ui \
-            resources/ui/QuestionForm.ui
+        resources/ui/MainWindow.ui \
+        resources/ui/RegistryDialog.ui \
+        resources/ui/RegistryEdit.ui \
+        resources/ui/QuestionForm.ui \
+        resources/ui/QuestionForm.ui \
+        resources/ui/QuestionEditor.ui
 
 DESTDIR = $$PWD
 

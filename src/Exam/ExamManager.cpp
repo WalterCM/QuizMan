@@ -14,36 +14,38 @@ ExamManager::ExamManager(QSqlDatabase db)
 void ExamManager::createExam()
 {
     foreach (int index, registryCount.keys()) {
+        QString section = registryCount[index];
         QStringList list = registers[index];
         QString criteria = registryCriteria[index];
+
         if (criteria == "Area") {
-            addByArea(infoAmount[index], list);
+            addByArea(section, infoAmount[index], list);
         } else if (criteria == "Subject") {
-            addBySubject(infoAmount[index], list);
+            addBySubject(section, infoAmount[index], list);
         } else if (criteria == "Topic") {
-            addByTopic(infoAmount[index], list);
+            addByTopic(section, infoAmount[index], list);
         }
     }
 }
 
-void ExamManager::addByArea(int amount, QStringList areaNames)
+void ExamManager::addByArea(QString section, int amount, QStringList areaNames)
 {
-    this->addQuestions("a.AreaName", amount, areaNames);
+    this->addQuestions(section, "a.AreaName", amount, areaNames);
 }
 
-void ExamManager::addBySubject(int amount, QStringList subjectNames)
+void ExamManager::addBySubject(QString section, int amount, QStringList subjectNames)
 {
-    this->addQuestions("s.SubjectName", amount, subjectNames);
+    this->addQuestions(section, "s.SubjectName", amount, subjectNames);
 }
 
-void ExamManager::addByTopic(int amount, QStringList topicNames)
+void ExamManager::addByTopic(QString section, int amount, QStringList topicNames)
 {
-    this->addQuestions("t.TopicName", amount, topicNames);
+    this->addQuestions(section, "t.TopicName", amount, topicNames);
 }
 
-void ExamManager::addAny(int amount)
+void ExamManager::addAny(QString section, int amount)
 {
-    this->addQuestions("Any", amount, QStringList());
+    this->addQuestions(section, "Any", amount, QStringList());
 }
 
 QList<Question> ExamManager::getQuestionList()
@@ -65,8 +67,17 @@ QList<Question> ExamManager::getQuestionList(int lo, int hi)
 
 Question ExamManager::getQuestionAt(int index)
 {
-    QList<Question> questions = exam.getQuestions();
-    return questions.at(index);
+    return exam.getQuestionAt(index);
+}
+
+QStringList ExamManager::getListOfSections()
+{
+    return exam.getListOfSections();
+}
+
+QMap<int, Question> ExamManager::getQuestionsAtSection(QString section)
+{
+    return exam.getQuestionsAtSection(section);
 }
 
 int ExamManager::getAmountQuestions()
@@ -234,16 +245,21 @@ void ExamManager::clearExamInfo()
     count = 0;
 }
 
-void ExamManager::addRegistry(QString registryName, QStringList registtrValue,
+bool ExamManager::addRegistry(QString registryName, QStringList registryValues,
                               int amount, QString criteria)
 {
+    int maxAmount = getDBAmountQuestions(criteria, registryValues);
+    if (amount > maxAmount)
+        return false;
     registryCount.insert(count, registryName);
-    registers.insert(count, registtrValue);
+    registers.insert(count, registryValues);
     infoAmount.insert(count, amount);
     registryCriteria.insert(count++, criteria);
+
+    return true;
 }
 
-void ExamManager::removeRegistry(QString registryName)
+bool ExamManager::removeRegistry(QString registryName)
 {
     int oldCount = count;
     count = registryCount.key(registryName);
@@ -257,15 +273,23 @@ void ExamManager::removeRegistry(QString registryName)
         registers[i] = registers[i + 1];
         infoAmount[i] = infoAmount[i + 1];
     }
+
+    return true;
 }
 
-void ExamManager::editRegistry(QString oldName, QString newName,
-                               QStringList newValues, int newAmount)
+bool ExamManager::editRegistry(QString oldName, QString newName,
+                               QStringList newValues, int newAmount, QString criteria)
 {
+    int maxAmount = getDBAmountQuestions(criteria, newValues);
+    if (newAmount > maxAmount)
+        return false;
+
     int index = registryCount.key(oldName);
     registryCount[index] = newName;
     registers[index] = newValues;
     infoAmount[index] = newAmount;
+
+    return true;
 }
 
 QStringList ExamManager::getRegistryNames()
@@ -288,6 +312,11 @@ int ExamManager::getRegistryAmount(QString registryName)
     return infoAmount[registryCount.key(registryName)];
 }
 
+QString ExamManager::getRegistryCriteria(QString registryName)
+{
+    return registryCriteria[registryCount.key(registryName)];
+}
+
 QStringList ExamManager::getSummary()
 {
     QStringList summary;
@@ -308,7 +337,7 @@ int ExamManager::getTime()
     return time;
 }
 
-void ExamManager::addQuestions(QString column, int amount, QStringList columnNames)
+void ExamManager::addQuestions(QString section, QString column, int amount, QStringList columnNames)
 {
     if (!db.open()) {
         qDebug() << "Database not found";
@@ -318,7 +347,7 @@ void ExamManager::addQuestions(QString column, int amount, QStringList columnNam
 
     QSqlQuery query;
     QString queryString;
-    queryString = QString("SELECT q.QuestionID, q.QuestionDescription, s.SubjectName, a.AreaName\
+    queryString = QString("SELECT q.QuestionID, q.QuestionDescription\
                           FROM Questions AS q\
                           INNER JOIN TopicsQuestions AS tq\
                           ON tq.QuestionID = q.QuestionID\
@@ -343,18 +372,17 @@ void ExamManager::addQuestions(QString column, int amount, QStringList columnNam
     query.bindValue(":amount", amount);
 
     query.exec();
+
+    QList<Question> questionList;
     while (query.next()) {
-        Question question;
-        QString area, subject, description;
         int id = query.value(0).toInt();
-        description = query.value(1).toString();
-        subject = query.value(2).toString();
-        area = query.value(3).toString();
-        question = getQuestion(id, description);
+        QString description = query.value(1).toString();
+        qDebug() << "description: " << description;
+        Question question = getQuestion(id, description);
 
-        exam.addQuestion(area, subject, question);
+        questionList << question;
     }
-
+    exam.addQuestions(section, questionList);
     db.close();
 }
 

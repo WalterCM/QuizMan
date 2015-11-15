@@ -6,11 +6,13 @@ void QuizManExam::setName(QString name)
     this->name = name;
 }
 
-void QuizManExam::addQuestion(QString area,
-                              QString subject,
-                              Question question)
+void QuizManExam::addQuestions(QString section, QList<Question> questionList)
 {
-    questionTree[area].insert(subject, question);
+    sectionMap[++sections] = section;
+    foreach (Question question, questionList) {
+        questionMap[++questions] = question;
+        examTree.insert(sections, questions);
+    }
 }
 
 QString QuizManExam::getName()
@@ -18,74 +20,42 @@ QString QuizManExam::getName()
     return this->name;
 }
 
-QStringList QuizManExam::getAreas()
-{
-    return this->questionTree.keys();
-}
-
-QStringList QuizManExam::getSubjects()
-{
-    QStringList subjects;
-    foreach (auto s, this->questionTree.values()) {
-        subjects.append(s.keys());
-    }
-
-    return subjects;
-}
-
 QList<Question> QuizManExam::getQuestions()
 {
-    QList<Question> numberedQuestions;
-    foreach (auto s, questionTree.values())
-        numberedQuestions.append(s.values());
-
-    return numberedQuestions;
+    return questionMap.values();
 }
 
-QHash<QString, QMultiHash<QString, Question>> QuizManExam::getQuestionTree()
+Question QuizManExam::getQuestionAt(int index)
 {
-    return this->questionTree;
+    return questionMap[index];
+}
+
+QStringList QuizManExam::getListOfSections()
+{
+    return sectionMap.values();
+}
+
+QMap<int, Question> QuizManExam::getQuestionsAtSection(QString section)
+{
+    int sectionIndex = sectionMap.key(section);
+
+    QMap<int, Question> questions;
+    foreach (int questionIndex, examTree.values()) {
+        int index = examTree.key(questionIndex);
+        if (index == sectionIndex)
+            questions.insert(questionIndex, questionMap[questionIndex]);
+    }
+
+    return questions;
 }
 
 int QuizManExam::questionCount()
 {
-    int count = 0;
-    foreach (Question q, getQuestions())
-        count++;
-
-    return count;
+    return questions;
 }
 
 bool QuizManExam::questionExists(Question question)
 {
-    foreach (QString a, questionTree.keys()) {
-        foreach (QString s, questionTree[a].keys()) {
-            if (questionTree[a].contains(s, question))
-                return true;
-        }
-    }
-
-    return false;
+    return getQuestions().contains(question);
 }
-
-bool QuizManExam::questionExists(QString subject, Question question)
-{
-    foreach (QString a, questionTree.keys()) {
-        if (questionTree[a].contains(subject, question))
-            return true;
-    }
-
-    return false;
-}
-
-bool QuizManExam::questionExists(QString area, QString subject, Question question)
-{
-    if (questionTree.contains(area)) {
-        if (questionTree[area].contains(subject, question))
-            return true;
-    }
-
-    return false;
-}
-
 

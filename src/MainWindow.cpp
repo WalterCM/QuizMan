@@ -81,8 +81,7 @@ void MainWindow::on_customExamCreate_clicked()
 
     ui->cronometer->setDigitCount(8);
     startCronometer();
-    int index = 0;
-    foreach (QString sectionName, examManager.getRegistryNames()) {
+    foreach (QString sectionName, examManager.getListOfSections()) {
         QWidget *page = new QWidget();
 
         page->setLayout(new QGridLayout());
@@ -100,13 +99,13 @@ void MainWindow::on_customExamCreate_clicked()
 
         area->setWidgetResizable(true);;
 
-        for (int i = 0; i < examManager.getRegistryAmount(sectionName); i++) {
+        QMap<int, Question> questions = examManager.getQuestionsAtSection(sectionName);
+        foreach (int index, questions.keys()) {
             QuestionForm *form = new QuestionForm();
-            form->setQuestion(QString::number(index + i + 1) + ". " +
-                              examManager.getQuestionAt(index + i).getDescription());
+            form->setQuestion(QString::number(index) + ". " +
+                              questions[index].getDescription());
             layout->addWidget(form);
         }
-        index += examManager.getRegistryAmount(sectionName);
 
         page->layout()->addWidget(area);
 
@@ -261,41 +260,58 @@ void MainWindow::on_addRegistry_clicked()
         criteria = "Area";
     }
 
-    foreach (QString s, selected)
-        qDebug() << "selected: " << s;
-
     QString registryName = ("Seccion " + QString::number(groups));
 
-    int maxAmount = examManager.getDBAmountQuestions(criteria, selected);
-    RegistryDialog registryDialog(this, registryName, selected, maxAmount);
+    RegistryDialog registryDialog(this, registryName, selected);
     registryDialog.setModal(true);
     registryDialog.setFixedSize(registryDialog.size());
     registryDialog.exec();
 
     if (!registryDialog.isCorrect()) return;
 
-    ui->customExamSave->setEnabled(true);
-    ui->customExamCreate->setEnabled(true);
+    int amount = registryDialog.getAmountOfQuestions();
 
     if (registryDialog.isSeparated()) {
-        int amount = registryDialog.getAmountOfQuestions();
+        foreach (QString item, selected) {
+            QStringList registryValues;
+            registryValues << item;
+            int maxAmount = examManager.getDBAmountQuestions(criteria, registryValues);
+            if (maxAmount < amount) {
+                amountError(maxAmount);
+                on_addRegistry_clicked();
+                return;
+            }
+        }
+
         foreach (QString item, selected) {
             QStringList registryValue;
             registryValue.push_back(item);
             registryName = "";
             registryName.append("Seccion " + QString::number(groups++));
+
             examManager.addRegistry(registryName, registryValue, amount, criteria);
 
             ui->registryList->addItem(registryName);
         }
     } else {
-        QStringList registryValue = selected;
-        int amount = registryDialog.getAmountOfQuestions();
+        QStringList registryValues = selected;
+
         registryName = registryDialog.getRegistryName();
-        examManager.addRegistry(registryName, registryValue, amount, criteria);
+        int maxAmount = examManager.getDBAmountQuestions(criteria, registryValues);
+        if (maxAmount < amount) {
+            amountError(maxAmount);
+            on_addRegistry_clicked();
+            return;
+        }
+        groups++;
+
+        examManager.addRegistry(registryName, registryValues, amount, criteria);
 
         ui->registryList->addItem(registryName);
     }
+
+    ui->customExamSave->setEnabled(true);
+    ui->customExamCreate->setEnabled(true);
 
     updateSummary();
 }
@@ -311,14 +327,21 @@ void MainWindow::on_editRegistry_clicked()
     registryEdit.setModal(true);
     registryEdit.setFixedSize(registryEdit.size());
     registryEdit.exec();
-
-    if (!registryEdit.areChangesAccepted()) return;
     QString oldName = registryName;
     registryName = registryEdit.getRegistryName();
     registryValues = registryEdit.getRegistryValues();
     amount = registryEdit.getRegistryAmount();
+    if (!registryEdit.areChangesAccepted()) return;
+    QString criteria = examManager.getRegistryCriteria(oldName);
 
-    examManager.editRegistry(oldName, registryName, registryValues, amount);
+    int maxAmount = examManager.getDBAmountQuestions(criteria, registryValues);
+    if (maxAmount < amount) {
+        amountError(maxAmount);
+        on_editRegistry_clicked();
+        return;
+    }
+
+    examManager.editRegistry(oldName, registryName, registryValues, amount, criteria);
 
     ui->content->clear();
     ui->registryList->clear();
@@ -457,6 +480,17 @@ void MainWindow::clearTopics()
 
     topicSelected.clear();
 }
+
+void MainWindow::amountError(int maxAmount)
+{
+    QMessageBox messageBox;
+    messageBox.critical(this,"No hay suficientes preguntas",
+                        "Reduzca el numero de preguntas\n"
+                        "El maximo numero de preguntas es " +
+                        QString::number(maxAmount));
+    messageBox.setFixedSize(700,200);
+}
+
 
 void MainWindow::updateSummary()
 {

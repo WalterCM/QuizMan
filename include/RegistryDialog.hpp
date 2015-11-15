@@ -13,8 +13,7 @@ class RegistryDialog : public QDialog
 
 public:
     explicit RegistryDialog(QWidget *parent = 0, QString registryName = QString(),
-                            QStringList registryValues = QStringList(),
-                            int maxAmount = 0);
+                            QStringList registryValues = QStringList());
     ~RegistryDialog();
 
     QString getRegistryName();
@@ -32,8 +31,6 @@ private:
 
     bool correct = false;
     bool separate = false;
-
-    int maxAmount = 0;
 };
 
 #endif // REGISTRYDIALOG_HPP

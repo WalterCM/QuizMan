@@ -4,7 +4,7 @@
 #include "ui_RegistryDialog.h"
 
 RegistryDialog::RegistryDialog(QWidget *parent, QString registryName,
-                               QStringList registryValues, int maxAmount) :
+                               QStringList registryValues) :
     QDialog(parent),
     ui(new Ui::RegistryDialog)
 {
@@ -16,7 +16,6 @@ RegistryDialog::RegistryDialog(QWidget *parent, QString registryName,
     ui->amountText->setValidator(new QIntValidator(0, 1000, this));
     if (registryValues.count() == 1) ui->separateCheckBox->setCheckable(false);
 
-    this->maxAmount = maxAmount;
     this->registryName = registryName;
 
     ui->registryNameBox->setText(registryName);
@@ -58,21 +57,6 @@ void RegistryDialog::on_registryDialogOk_clicked()
         return;
     }
     this->amount = ui->amountText->text().toInt();
-
-    if (amount > maxAmount) {
-        QMessageBox messageBox;
-        int answer;
-        answer = messageBox.question(this,"No hay suficientes preguntas",
-                            "Esta seguro que desea continuar?\n"
-                            "Se usara el maximo numero de preguntas que es " +
-                            QString::number(maxAmount),
-                            "Regresar", "Continuar");
-        messageBox.setFixedSize(700,200);
-
-        if (answer == 0) return;
-
-        amount = maxAmount;
-    }
 
     this->hide();
 
