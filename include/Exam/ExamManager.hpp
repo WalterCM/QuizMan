@@ -30,7 +30,11 @@ public:
     QStringList getDBAreas();
     QStringList getDBSubjects(QString area);
     QStringList getDBTopics(QString subject);
-    QStringList getDBTopicsPerArea(QString area);
+    QStringList getDBTopicsByArea(QString area);
+    QStringList getDBQuestionListByTopic(QString topic);
+    QHash<int, QString> getDBQuestionHashByTopic(QString topic);
+    QStringList getDBDetailsOfQuestion(int questionID);
+
     int getDBAmountQuestions(QString column, QStringList columnNames);
 
     void clearExamInfo();
@@ -58,7 +62,7 @@ private:
     QuizManExam exam;
 
     int time = 0;
-    int count = 0;
+    int sections = 0;
     QMap<int, QString> registryCount;
     QMap<int, QStringList> registers;
     QMap<int, int> infoAmount;

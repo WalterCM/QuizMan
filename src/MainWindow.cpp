@@ -6,6 +6,7 @@
 #include "include/RegistryDialog.hpp"
 #include "include/RegistryEdit.hpp"
 #include "include/QuestionForm.hpp"
+#include "include/QuestionEditor.hpp"
 
 MainWindow::MainWindow(QString accountName, QSqlDatabase database) :
     ui(new Ui::MainWindow),
@@ -44,8 +45,8 @@ void MainWindow::on_createCustonExamButton_clicked()
 
     ui->stackedWidget->setCurrentWidget(ui->CustomExamCreationPage);
     ui->areaList->clear();
-    QStringList areas = examManager.getDBAreas();
-    ui->areaList->addItems(areas);
+    ui->areaList->addItems(examManager.getDBAreas());
+    ui->areaList->sortItems();
 
     ui->cronometerMinutes->setEnabled(false);
     ui->cronometerMinutes->setText("60");
@@ -161,7 +162,7 @@ void MainWindow::on_areaList_itemSelectionChanged()
 
     foreach (QString area, areas) {
         QStringList subjects = examManager.getDBSubjects(area);
-        QStringList topics = examManager.getDBTopicsPerArea(area);
+        QStringList topics = examManager.getDBTopicsByArea(area);
 
         ui->subjectList->addItems(subjects);
         ui->topicList->addItems(topics);
@@ -193,7 +194,7 @@ void MainWindow::on_subjectList_itemSelectionChanged()
 
             QStringList areas = areaSelected;
             foreach (QString area, areas) {
-                QStringList topics = examManager.getDBTopicsPerArea(area);
+                QStringList topics = examManager.getDBTopicsByArea(area);
 
                 ui->topicList->addItems(topics);
                 ui->topicList->sortItems();
@@ -393,6 +394,14 @@ void MainWindow::on_cronometerMinutes_textEdited(const QString &arg1)
     examManager.setTime(arg1.toInt());
 
     updateSummary();
+}
+
+void MainWindow::on_actionQuizManEditor_triggered()
+{
+    QuestionEditor editor(this, database);
+    editor.setModal(true);
+    editor.setFixedSize(editor.size());
+    editor.exec();
 }
 
 bool MainWindow::isSomethingSelected()

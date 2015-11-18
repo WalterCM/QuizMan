@@ -41,10 +41,11 @@ private slots:
     void on_registryList_itemClicked(QListWidgetItem *item);
 
     void on_cronometerCheckBox_clicked(bool checked);
-
     void on_cronometerMinutes_textEdited(const QString &arg1);
-
     void updateCronometer();
+
+    void on_actionQuizManEditor_triggered();
+
 private:
     bool isSomethingSelected();
     bool isAreaSelected();

@@ -25,7 +25,8 @@ SOURCES += src/Main.cpp\
         src/RegistryDialog.cpp \
         src/RegistryEdit.cpp \
         src/QuestionForm.cpp \
-        src/QuestionEditor.cpp
+        src/QuestionEditor.cpp \
+        src/DroppableImageView.cpp
 
 HEADERS  += include/IntroWindow.hpp \
         include/Account.hpp \
@@ -42,7 +43,8 @@ HEADERS  += include/IntroWindow.hpp \
         include/RegistryEdit.hpp \
         include/QuestionForm.hpp \
         include/QuestionForm.hpp \
-        include/QuestionEditor.hpp
+        include/QuestionEditor.hpp \
+        include/DroppableImageView.hpp
 
 FORMS    += resources/ui/IntroWindow.ui \
         resources/ui/MainWindow.ui \
@@ -50,7 +52,8 @@ FORMS    += resources/ui/IntroWindow.ui \
         resources/ui/RegistryEdit.ui \
         resources/ui/QuestionForm.ui \
         resources/ui/QuestionForm.ui \
-        resources/ui/QuestionEditor.ui
+        resources/ui/QuestionEditor.ui \
+        resources/ui/DroppableImageView.ui
 
 DESTDIR = $$PWD
 

@@ -98,14 +98,14 @@ QStringList ExamManager::getDBAreas()
 
     QSqlQuery query;
     query.exec("SELECT AreaName FROM Areas");
-    QMap<QString, int> areaList;
+    QStringList areaList;
 
     while (query.next()) {
-        areaList[query.value(0).toString()] = true;
+        areaList << query.value(0).toString();
     }
     db.close();
 
-    return areaList.keys();
+    return areaList;
 }
 
 QStringList ExamManager::getDBSubjects(QString area)
@@ -123,13 +123,13 @@ QStringList ExamManager::getDBSubjects(QString area)
                    WHERE a.AreaName = :name");
     query.bindValue(":name", area);
     query.exec();
-    QMap<QString, bool> subjectList;
+    QStringList subjectList;
     while (query.next()) {
-        subjectList[query.value(0).toString()] = true;
+        subjectList << query.value(0).toString();
     }
     db.close();
 
-    return subjectList.keys();
+    return subjectList;
 }
 
 QStringList ExamManager::getDBTopics(QString subject)
@@ -147,17 +147,17 @@ QStringList ExamManager::getDBTopics(QString subject)
                    WHERE s.SubjectName = :name");
     query.bindValue(":name", subject);
     query.exec();
-    QMap<QString, bool> topicList;
+    QStringList topicList;
 
     while (query.next()) {
-        topicList[query.value(0).toString()] = true;
+        topicList << query.value(0).toString();
     }
     db.close();
 
-    return topicList.keys();
+    return topicList;
 }
 
-QStringList ExamManager::getDBTopicsPerArea(QString area)
+QStringList ExamManager::getDBTopicsByArea(QString area)
 {
     if (!db.open()) {
         qDebug() << "Database not found";
@@ -174,14 +174,134 @@ QStringList ExamManager::getDBTopicsPerArea(QString area)
                    WHERE a.AreaName = :name");
     query.bindValue(":name", area);
     query.exec();
-    QMap<QString, bool> topicList;
+    QStringList topicList;
 
     while (query.next()) {
-        topicList[query.value(0).toString()] = true;
+        topicList << query.value(0).toString();
     }
     db.close();
 
-    return topicList.keys();
+    return topicList;
+}
+
+QStringList ExamManager::getDBQuestionListByTopic(QString topic)
+{
+    if (!db.open()) {
+        qDebug() << "Database not found";
+        qDebug() << "7";
+    }
+
+    QSqlQuery query;
+    query.prepare("SELECT q.QuestionDescription\
+                   FROM Questions AS q\
+                   INNER JOIN TopicsQuestions AS tq\
+                   ON tq.QuestionID = q.QuestionID\
+                   INNER JOIN Topics AS t\
+                   ON t.TopicID = tq.TopicID\
+                   WHERE t.TopicName = :name");
+    query.bindValue(":name", topic);
+    query.exec();
+    QStringList questionList;
+
+    while (query.next()) {
+        questionList << query.value(0).toString();
+    }
+    db.close();
+
+    return questionList;
+}
+
+QHash<int, QString> ExamManager::getDBQuestionHashByTopic(QString topic)
+{
+    if (!db.open()) {
+        qDebug() << "Database not found";
+        qDebug() << "7";
+    }
+
+    QSqlQuery query;
+    query.prepare("SELECT q.QuestionID, q.QuestionDescription\
+                   FROM Questions AS q\
+                   INNER JOIN TopicsQuestions AS tq\
+                   ON tq.QuestionID = q.QuestionID\
+                   INNER JOIN Topics AS t\
+                   ON t.TopicID = tq.TopicID\
+                   WHERE t.TopicName = :name");
+    query.bindValue(":name", topic);
+    query.exec();
+    QHash<int, QString> questionList;
+
+    while (query.next()) {
+        questionList.insert(query.value(0).toInt(),
+                            query.value(1).toString());
+    }
+
+    db.close();
+
+    return questionList;
+}
+
+QStringList ExamManager::getDBDetailsOfQuestion(int questionID)
+{
+    if (!db.open()) {
+        qDebug() << "Database not found";
+        qDebug() << "7";
+    }
+    QStringList detailsList;
+
+    QSqlQuery query;
+    query.prepare("SELECT a.AreaName, s.SubjectName, q.QuestionDescription\
+                   FROM Questions AS q\
+                   INNER JOIN TopicsQuestions AS tq\
+                   ON tq.QuestionID = q.QuestionID\
+                   INNER JOIN Topics AS t\
+                   ON t.TopicID = tq.TopicID\
+                   INNER JOIN Subjects AS s\
+                   ON s.SubjectID = t.SubjectID\
+                   INNER JOIN Areas AS a\
+                   ON a.AreaID = s.AreaID\
+                   WHERE q.QuestionID = :ID");
+    query.bindValue(":ID", questionID);
+    query.exec();
+
+    while (query.next()) {
+        detailsList << QString("Area: " + query.value(0).toString());
+        detailsList << QString("Curso: " + query.value(1).toString());
+        detailsList << QString("Pregunta: " + query.value(2).toString());
+    }
+
+    query.prepare("SELECT t.TopicName\
+                   FROM Topics AS t\
+                   INNER JOIN TopicsQuestions AS tq\
+                   ON tq.TopicID = t.TopicID\
+                   INNER JOIN Questions AS q\
+                   ON q.QuestionID = tq.QuestionID\
+                   WHERE q.QuestionID = :ID\
+                   ORDER BY t.TopicName ASC");
+    query.bindValue(":ID", questionID);
+    query.exec();
+
+    detailsList << "";
+    detailsList << "Temas: ";
+    while (query.next()) {
+        detailsList << QString("* " + query.value(0).toString());
+    }
+    query.prepare("SELECT o.OptionDescription\
+                   FROM Options AS o\
+                   INNER JOIN Questions AS q\
+                   ON q.QuestionID = o.QuestionID\
+                   WHERE q.QuestionID = :ID\
+                   ORDER BY o.OptionDescription ASC");
+    query.bindValue(":ID", questionID);
+    query.exec();
+
+    detailsList << "";
+    detailsList << "Opciones: ";
+    while (query.next()) {
+        detailsList << QString("* " + query.value(0).toString());
+    }
+    db.close();
+
+    return detailsList;
 }
 
 int ExamManager::getDBAmountQuestions(QString column, QStringList columnNames)
@@ -242,7 +362,7 @@ void ExamManager::clearExamInfo()
     if (!registryCount.empty())
         registryCount.clear();
 
-    count = 0;
+    sections = 0;
 }
 
 bool ExamManager::addRegistry(QString registryName, QStringList registryValues,
@@ -251,29 +371,21 @@ bool ExamManager::addRegistry(QString registryName, QStringList registryValues,
     int maxAmount = getDBAmountQuestions(criteria, registryValues);
     if (amount > maxAmount)
         return false;
-    registryCount.insert(count, registryName);
-    registers.insert(count, registryValues);
-    infoAmount.insert(count, amount);
-    registryCriteria.insert(count++, criteria);
+    registryCount.insert(sections, registryName);
+    registers.insert(sections, registryValues);
+    infoAmount.insert(sections, amount);
+    registryCriteria.insert(sections++, criteria);
 
     return true;
 }
 
 bool ExamManager::removeRegistry(QString registryName)
 {
-    int oldCount = count;
-    count = registryCount.key(registryName);
-    registryCriteria.remove(count);
-    infoAmount.remove(count);
-    registers.remove(count);
-    registryCount.remove(count);
-
-    for (int i = count; i < oldCount - 1; i++) {
-        registryCount[i] = registryCount[i + 1];
-        registers[i] = registers[i + 1];
-        infoAmount[i] = infoAmount[i + 1];
-    }
-
+    sections = registryCount.key(registryName);
+    registryCriteria.remove(sections);
+    infoAmount.remove(sections);
+    registers.remove(sections);
+    registryCount.remove(sections);
     return true;
 }
 
@@ -295,7 +407,7 @@ bool ExamManager::editRegistry(QString oldName, QString newName,
 QStringList ExamManager::getRegistryNames()
 {
     QStringList registryNames;
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < sections; i++) {
         registryNames.push_back(registryCount.value(i));
     }
 
@@ -321,7 +433,7 @@ QStringList ExamManager::getSummary()
 {
     QStringList summary;
     summary << ("<b>Cronometro: " + QString::number(time) + " minutos");
-    summary << ("<b>Cantidad de secciones: </b>" + QString::number(count));
+    summary << ("<b>Cantidad de secciones: </b>" + QString::number(registryCount.count()));
     summary << ("<b>Cantidad de preguntas: </b>" + QString::number(getAmountQuestions()));
 
     return summary;
@@ -377,7 +489,6 @@ void ExamManager::addQuestions(QString section, QString column, int amount, QStr
     while (query.next()) {
         int id = query.value(0).toInt();
         QString description = query.value(1).toString();
-        qDebug() << "description: " << description;
         Question question = getQuestion(id, description);
 
         questionList << question;
