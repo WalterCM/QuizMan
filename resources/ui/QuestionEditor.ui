@@ -635,7 +635,14 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
                 </widget>
                </item>
                <item>
-                <widget class="QTextEdit" name="descriptionEdit"/>
+                <widget class="QTextEdit" name="descriptionEdit">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>50</height>
+                  </size>
+                 </property>
+                </widget>
                </item>
                <item>
                 <widget class="QLabel" name="label_8">
@@ -643,6 +650,9 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
                   <string>Imagen</string>
                  </property>
                 </widget>
+               </item>
+               <item>
+                <layout class="QGridLayout" name="imageLayout"/>
                </item>
               </layout>
              </item>

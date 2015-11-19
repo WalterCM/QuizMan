@@ -17,7 +17,7 @@ QuestionEditor::QuestionEditor(QWidget *parent, QSqlDatabase db) :
     ui->editQuestion->setEnabled(false);
 
     imageEdit = new DroppableImageView;
-    ui->verticalLayout_8->addWidget(imageEdit);
+    ui->imageLayout->addWidget(imageEdit);
 }
 
 QuestionEditor::~QuestionEditor()
