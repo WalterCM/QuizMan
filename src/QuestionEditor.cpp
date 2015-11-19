@@ -210,25 +210,42 @@ void QuestionEditor::on_questionList_itemClicked(QListWidgetItem *item)
 
 void QuestionEditor::on_addTopic_clicked()
 {
-    QListWidgetItem *item = new QListWidgetItem("Nuevo tema");
-    item->setFlags(item->flags() | Qt::ItemIsEditable);
+    for (int i = 0; i < ui->topicEdit->count(); i++) {
+        if (ui->topicEdit->item(i)->text() == topicSelected)
+            return;
+    }
 
+    QListWidgetItem *item = new QListWidgetItem(topicSelected);
     ui->topicEdit->addItem(item);
 }
 
 void QuestionEditor::on_removeTopic_clicked()
-{
+{   
+    QListWidgetItem *item = ui->topicEdit->currentItem();
+    ui->topicEdit->removeItemWidget(item);
 
+    if (ui->topicEdit->count() == 0)
+        ui->removeTopic->setEnabled(false);
 }
 
 void QuestionEditor::on_addOption_clicked()
 {
+    for (int i = 0; i < ui->optionEdit->count(); i++) {
+        if (ui->optionEdit->item(i)->text() == topicSelected)
+            return;
+    }
 
+    QListWidgetItem *item = new QListWidgetItem(optionSelected);
+    ui->optionEdit->addItem(item);
 }
 
 void QuestionEditor::on_removeOption_clicked()
 {
+    QListWidgetItem *item = ui->optionEdit->currentItem();
+    ui->optionEdit->removeItemWidget(item);
 
+    if (ui->optionEdit->count() == 0)
+        ui->removeOption->setEnabled(false);
 }
 
 void QuestionEditor::on_editorBack_clicked()
@@ -271,8 +288,8 @@ void QuestionEditor::on_editorSave_clicked()
 
 void QuestionEditor::on_areaEdit_currentTextChanged(const QString &arg1)
 {
-    this->area = arg1;
-    if (area == "") {
+    this->areaSelected = arg1;
+    if (areaSelected == "") {
         ui->subjectEdit->setEnabled(false);
         ui->topicEditLine->setEnabled(false);
         return;
@@ -285,8 +302,8 @@ void QuestionEditor::on_areaEdit_currentTextChanged(const QString &arg1)
 
 void QuestionEditor::on_subjectEdit_currentTextChanged(const QString &arg1)
 {
-    this->subject = arg1;
-    if (subject == "") {
+    this->subjectSelected = arg1;
+    if (subjectSelected == "") {
         ui->topicEditLine->setEnabled(false);
         return;
     }
@@ -294,6 +311,40 @@ void QuestionEditor::on_subjectEdit_currentTextChanged(const QString &arg1)
         ui->topicEditLine->setEnabled(true);
         updateTopicEdit();
     }
+}
+
+void QuestionEditor::on_topicEditLine_editTextChanged(const QString &arg1)
+{
+    this->topicSelected = arg1;
+    if (topicSelected == "") {
+        ui->addTopic->setEnabled(false);
+        return;
+    }
+    else {
+        ui->addTopic->setEnabled(true);
+    }
+}
+
+void QuestionEditor::on_optionEditLine_editTextChanged(const QString &arg1)
+{
+    this->optionSelected = arg1;
+    if (optionSelected == "") {
+        ui->addOption->setEnabled(false);
+        return;
+    }
+    else {
+        ui->addOption->setEnabled(true);
+    }
+}
+
+void QuestionEditor::on_topicEdit_itemClicked(QListWidgetItem *item)
+{
+    ui->removeTopic->setEnabled(true);
+}
+
+void QuestionEditor::on_optionEdit_itemClicked(QListWidgetItem *item)
+{
+    ui->removeOption->setEnabled(true);
 }
 
 void QuestionEditor::updateAll()
@@ -390,7 +441,7 @@ void QuestionEditor::updateAreaEdit()
 void QuestionEditor::updateSubjectEdit()
 {
     ui->subjectEdit->clear();
-    ui->subjectEdit->addItems(questionManager.getDBSubjects(area));
+    ui->subjectEdit->addItems(questionManager.getDBSubjects(areaSelected));
 
     ui->subjectEdit->setInsertPolicy(QComboBox::NoInsert);
     ui->subjectEdit->setCurrentIndex(-1);
@@ -402,7 +453,7 @@ void QuestionEditor::updateSubjectEdit()
 void QuestionEditor::updateTopicEdit()
 {
     ui->topicEditLine->clear();
-    ui->topicEditLine->addItems(questionManager.getDBTopics(subject));
+    ui->topicEditLine->addItems(questionManager.getDBTopics(subjectSelected));
 
     ui->topicEditLine->setInsertPolicy(QComboBox::NoInsert);
     ui->topicEditLine->setCurrentIndex(-1);
@@ -415,5 +466,3 @@ void QuestionEditor::updateOptionEdit()
 {
 
 }
-
-

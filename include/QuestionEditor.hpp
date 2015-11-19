@@ -30,15 +30,22 @@ private slots:
     void on_topicList_itemClicked(QListWidgetItem *item);
     void on_questionList_itemClicked(QListWidgetItem *item);
 
-
     void on_addTopic_clicked();
     void on_removeTopic_clicked();
     void on_addOption_clicked();
     void on_removeOption_clicked();
+
     void on_editorBack_clicked();
     void on_editorSave_clicked();
+
     void on_areaEdit_currentTextChanged(const QString &arg1);
     void on_subjectEdit_currentTextChanged(const QString &arg1);
+    void on_topicEditLine_editTextChanged(const QString &arg1);
+    void on_optionEditLine_editTextChanged(const QString &arg1);
+
+    void on_topicEdit_itemClicked(QListWidgetItem *item);
+
+    void on_optionEdit_itemClicked(QListWidgetItem *item);
 
 private:
     void updateAll();
@@ -63,8 +70,10 @@ private:
     bool adding = false;
     bool editing = false;
 
-    QString area;
-    QString subject;
+    QString areaSelected;
+    QString subjectSelected;
+    QString topicSelected;
+    QString optionSelected;
 
     DroppableImageView *imageEdit;
 };
