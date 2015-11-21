@@ -18,8 +18,7 @@ void Question::setOptions(QList<Option> options)
 
 void Question::addOption(Option option)
 {
-    int newIndex = this->options.count() + 1;
-    this->options[newIndex] = option;
+    options << option;
 }
 
 void Question::setTopics(QStringList topics)
@@ -30,6 +29,11 @@ void Question::setTopics(QStringList topics)
 void Question::addTopic(QString topic)
 {
     this->topics.push_back(topic);
+}
+
+void Question::setImageLocation(QString imageLocation)
+{
+    this->imageLocation = imageLocation;
 }
 
 int Question::getID() const
@@ -50,6 +54,11 @@ QList<Option> Question::getOptions() const
 QStringList Question::getTopics() const
 {
     return this->topics;
+}
+
+QString Question::getImageLocation()
+{
+    return this->imageLocation;
 }
 
 bool Question::operator==(const Question &question) const

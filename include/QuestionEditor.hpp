@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QtSql>
 #include <QListWidgetItem>
-#include <include/Exam/ExamManager.hpp>
+#include <include/Exam/QuestionDBManager.hpp>
 #include "include/DroppableImageView.hpp"
 
 namespace Ui {
@@ -34,6 +34,8 @@ private slots:
     void on_removeTopic_clicked();
     void on_addOption_clicked();
     void on_removeOption_clicked();
+    void on_setOptionCorrect_clicked();
+    void on_setOptionIncorrect_clicked();
 
     void on_editorBack_clicked();
     void on_editorSave_clicked();
@@ -44,9 +46,7 @@ private slots:
     void on_optionEditLine_editTextChanged(const QString &arg1);
 
     void on_topicEdit_itemClicked(QListWidgetItem *item);
-
     void on_optionEdit_itemClicked(QListWidgetItem *item);
-
 private:
     void updateAll();
     void updateAreas();
@@ -65,7 +65,7 @@ private:
     Ui::QuestionEditor *ui;
     QSqlDatabase db;
 
-    ExamManager questionManager;
+    QuestionDBManager questionManager;
 
     bool adding = false;
     bool editing = false;
@@ -74,6 +74,7 @@ private:
     QString subjectSelected;
     QString topicSelected;
     QString optionSelected;
+    QList<int> correctOptions;
 
     DroppableImageView *imageEdit;
 };

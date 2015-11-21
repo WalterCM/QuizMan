@@ -2,6 +2,8 @@
 #define QUESTIONFORM_HPP
 
 #include <QWidget>
+#include <QButtonGroup>
+#include <QGraphicsView>
 
 namespace Ui {
 class QuestionForm;
@@ -17,8 +19,11 @@ public:
 
     void setQuestion(QString question);
     void addAlternative(QString alternative);
+    void setImage(QString path);
 private:
     Ui::QuestionForm *ui;
+    QGraphicsView *imageView;
+    QButtonGroup *group;
 };
 
 #endif // QUESTIONFORM_HPP

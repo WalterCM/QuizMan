@@ -23,7 +23,7 @@ public:
     void dropEvent(QDropEvent *e);
 private:
     Ui::DroppableImageView *ui;
-    QString fileName;
+    QString fileName = "";
 };
 
 #endif // DROPPABLEIMAGEVIEW_HPP

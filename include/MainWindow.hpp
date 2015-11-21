@@ -45,7 +45,6 @@ private slots:
     void updateCronometer();
 
     void on_actionQuizManEditor_triggered();
-
 private:
     bool isSomethingSelected();
     bool isAreaSelected();
@@ -67,6 +66,7 @@ private:
     QSqlDatabase database;
     AccountManager accountManager;
     ExamManager examManager;
+    QuestionDBManager questionManager;
 
     QStringList areaSelected;
     QStringList subjectSelected;

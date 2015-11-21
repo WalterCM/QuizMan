@@ -9,6 +9,7 @@ ExamManager::ExamManager()
 ExamManager::ExamManager(QSqlDatabase db)
 {
     this->db = db;
+    questionManager = QuestionDBManager(db);
 }
 
 void ExamManager::createExam()
@@ -89,268 +90,6 @@ int ExamManager::getAmountQuestions()
     return amount;
 }
 
-QStringList ExamManager::getDBAreas()
-{
-    if (!db.open()) {
-        qDebug() << "Database not found";
-        qDebug() << "5";
-    }
-
-    QSqlQuery query;
-    query.exec("SELECT AreaName FROM Areas");
-    QStringList areaList;
-
-    while (query.next()) {
-        areaList << query.value(0).toString();
-    }
-    db.close();
-
-    return areaList;
-}
-
-QStringList ExamManager::getDBSubjects(QString area)
-{
-    if (!db.open()) {
-        qDebug() << "Database not found";
-        qDebug() << "6";
-    }
-
-    QSqlQuery query;
-    query.prepare("SELECT s.SubjectName\
-                   FROM Subjects AS s\
-                   INNER JOIN Areas AS a\
-                   ON a.AreaID = s.AreaID\
-                   WHERE a.AreaName = :name");
-    query.bindValue(":name", area);
-    query.exec();
-    QStringList subjectList;
-    while (query.next()) {
-        subjectList << query.value(0).toString();
-    }
-    db.close();
-
-    return subjectList;
-}
-
-QStringList ExamManager::getDBTopics(QString subject)
-{
-    if (!db.open()) {
-        qDebug() << "Database not found";
-        qDebug() << "7";
-    }
-
-    QSqlQuery query;
-    query.prepare("SELECT t.TopicName\
-                   FROM Topics AS t\
-                   INNER JOIN Subjects AS s\
-                   ON s.SubjectID = t.SubjectID\
-                   WHERE s.SubjectName = :name");
-    query.bindValue(":name", subject);
-    query.exec();
-    QStringList topicList;
-
-    while (query.next()) {
-        topicList << query.value(0).toString();
-    }
-    db.close();
-
-    return topicList;
-}
-
-QStringList ExamManager::getDBTopicsByArea(QString area)
-{
-    if (!db.open()) {
-        qDebug() << "Database not found";
-        qDebug() << "7";
-    }
-
-    QSqlQuery query;
-    query.prepare("SELECT t.TopicName\
-                   FROM Topics AS t\
-                   INNER JOIN Subjects AS s\
-                   ON s.SubjectID = t.SubjectID\
-                   INNER JOIN Areas AS a\
-                   ON a.AreaID = s.AreaID\
-                   WHERE a.AreaName = :name");
-    query.bindValue(":name", area);
-    query.exec();
-    QStringList topicList;
-
-    while (query.next()) {
-        topicList << query.value(0).toString();
-    }
-    db.close();
-
-    return topicList;
-}
-
-QStringList ExamManager::getDBQuestionListByTopic(QString topic)
-{
-    if (!db.open()) {
-        qDebug() << "Database not found";
-        qDebug() << "7";
-    }
-
-    QSqlQuery query;
-    query.prepare("SELECT q.QuestionDescription\
-                   FROM Questions AS q\
-                   INNER JOIN TopicsQuestions AS tq\
-                   ON tq.QuestionID = q.QuestionID\
-                   INNER JOIN Topics AS t\
-                   ON t.TopicID = tq.TopicID\
-                   WHERE t.TopicName = :name");
-    query.bindValue(":name", topic);
-    query.exec();
-    QStringList questionList;
-
-    while (query.next()) {
-        questionList << query.value(0).toString();
-    }
-    db.close();
-
-    return questionList;
-}
-
-QHash<int, QString> ExamManager::getDBQuestionHashByTopic(QString topic)
-{
-    if (!db.open()) {
-        qDebug() << "Database not found";
-        qDebug() << "7";
-    }
-
-    QSqlQuery query;
-    query.prepare("SELECT q.QuestionID, q.QuestionDescription\
-                   FROM Questions AS q\
-                   INNER JOIN TopicsQuestions AS tq\
-                   ON tq.QuestionID = q.QuestionID\
-                   INNER JOIN Topics AS t\
-                   ON t.TopicID = tq.TopicID\
-                   WHERE t.TopicName = :name");
-    query.bindValue(":name", topic);
-    query.exec();
-    QHash<int, QString> questionList;
-
-    while (query.next()) {
-        questionList.insert(query.value(0).toInt(),
-                            query.value(1).toString());
-    }
-
-    db.close();
-
-    return questionList;
-}
-
-QStringList ExamManager::getDBDetailsOfQuestion(int questionID)
-{
-    if (!db.open()) {
-        qDebug() << "Database not found";
-        qDebug() << "7";
-    }
-    QStringList detailsList;
-
-    QSqlQuery query;
-    query.prepare("SELECT a.AreaName, s.SubjectName, q.QuestionDescription\
-                   FROM Questions AS q\
-                   INNER JOIN TopicsQuestions AS tq\
-                   ON tq.QuestionID = q.QuestionID\
-                   INNER JOIN Topics AS t\
-                   ON t.TopicID = tq.TopicID\
-                   INNER JOIN Subjects AS s\
-                   ON s.SubjectID = t.SubjectID\
-                   INNER JOIN Areas AS a\
-                   ON a.AreaID = s.AreaID\
-                   WHERE q.QuestionID = :ID");
-    query.bindValue(":ID", questionID);
-    query.exec();
-
-    while (query.next()) {
-        detailsList << QString("Area: " + query.value(0).toString());
-        detailsList << QString("Curso: " + query.value(1).toString());
-        detailsList << QString("Pregunta: " + query.value(2).toString());
-    }
-
-    query.prepare("SELECT t.TopicName\
-                   FROM Topics AS t\
-                   INNER JOIN TopicsQuestions AS tq\
-                   ON tq.TopicID = t.TopicID\
-                   INNER JOIN Questions AS q\
-                   ON q.QuestionID = tq.QuestionID\
-                   WHERE q.QuestionID = :ID\
-                   ORDER BY t.TopicName ASC");
-    query.bindValue(":ID", questionID);
-    query.exec();
-
-    detailsList << "";
-    detailsList << "Temas: ";
-    while (query.next()) {
-        detailsList << QString("* " + query.value(0).toString());
-    }
-    query.prepare("SELECT o.OptionDescription\
-                   FROM Options AS o\
-                   INNER JOIN Questions AS q\
-                   ON q.QuestionID = o.QuestionID\
-                   WHERE q.QuestionID = :ID\
-                   ORDER BY o.OptionDescription ASC");
-    query.bindValue(":ID", questionID);
-    query.exec();
-
-    detailsList << "";
-    detailsList << "Opciones: ";
-    while (query.next()) {
-        detailsList << QString("* " + query.value(0).toString());
-    }
-    db.close();
-
-    return detailsList;
-}
-
-int ExamManager::getDBAmountQuestions(QString column, QStringList columnNames)
-{
-    if (!db.open()) {
-        qDebug() << "Database not found";
-        qDebug() << "10";
-        return 0;
-    }
-
-    if (column == "Topic")
-        column = "t.TopicName";
-    else if (column == "Subject")
-        column = "s.SubjectName";
-    else if (column == "Area")
-        column = "a.AreaName";
-
-    QSqlQuery query;
-    QString queryString;
-    queryString = QString("SELECT COUNT(*)\
-                          FROM Questions AS q\
-                          INNER JOIN TopicsQuestions AS tq\
-                          ON tq.QuestionID = q.QuestionID\
-                          INNER JOIN Topics AS t\
-                          ON t.TopicID = tq.TopicID\
-                          INNER JOIN Subjects AS s\
-                          ON s.SubjectID = t.SubjectID\
-                          INNER JOIN Areas AS a\
-                          ON a.AreaID = s.AreaID");
-
-    if (columnNames.count() > 0) {
-        queryString.append(" WHERE ");
-        foreach (QString columnName, columnNames) {
-            queryString.append(column + " = '" + columnName);
-            queryString.append("' OR ");
-        }
-        queryString.append("NULL");
-    }
-
-    query.exec(queryString);
-
-    query.next();
-    int amount = query.value(0).toInt();
-
-    db.close();
-
-    return amount;
-}
-
 void ExamManager::clearExamInfo()
 {
     if (!infoAmount.empty())
@@ -368,7 +107,7 @@ void ExamManager::clearExamInfo()
 bool ExamManager::addRegistry(QString registryName, QStringList registryValues,
                               int amount, QString criteria)
 {
-    int maxAmount = getDBAmountQuestions(criteria, registryValues);
+    int maxAmount = questionManager.getDBAmountQuestions(criteria, registryValues);
     if (amount > maxAmount)
         return false;
     registryCount.insert(sections, registryName);
@@ -392,7 +131,7 @@ bool ExamManager::removeRegistry(QString registryName)
 bool ExamManager::editRegistry(QString oldName, QString newName,
                                QStringList newValues, int newAmount, QString criteria)
 {
-    int maxAmount = getDBAmountQuestions(criteria, newValues);
+    int maxAmount = questionManager.getDBAmountQuestions(criteria, newValues);
     if (newAmount > maxAmount)
         return false;
 
@@ -459,7 +198,7 @@ void ExamManager::addQuestions(QString section, QString column, int amount, QStr
 
     QSqlQuery query;
     QString queryString;
-    queryString = QString("SELECT q.QuestionID, q.QuestionDescription\
+    queryString = QString("SELECT q.QuestionID, q.QuestionDescription, q.QuestionImageLocation\
                           FROM Questions AS q\
                           INNER JOIN TopicsQuestions AS tq\
                           ON tq.QuestionID = q.QuestionID\
@@ -489,7 +228,8 @@ void ExamManager::addQuestions(QString section, QString column, int amount, QStr
     while (query.next()) {
         int id = query.value(0).toInt();
         QString description = query.value(1).toString();
-        Question question = getQuestion(id, description);
+        QString imageLocation = query.value(2).toString();
+        Question question = getQuestion(id, description, imageLocation);
 
         questionList << question;
     }
@@ -497,18 +237,23 @@ void ExamManager::addQuestions(QString section, QString column, int amount, QStr
     db.close();
 }
 
-Question ExamManager::getQuestion(int questionID, QString questionDescription)
+Question ExamManager::getQuestion(int questionID, QString questionDescription,
+                                  QString imageLocation)
 {
-    Question question;
+
     QSqlQuery query;
-    query.prepare("SELECT OptionDescription, OptionCorrect"
-                  "FROM Options WHERE QuestionID = :ID");
+    query.prepare("SELECT OptionDescription, OptionCorrect\
+                   FROM Options WHERE QuestionID = :ID\
+                   ORDER BY Random()");
     query.bindValue(":ID", questionID);
     query.exec();
+
+    Question question;
     while (query.next()) {
         Option option;
         option.setDescription(query.value(0).toString());
         option.setTruthValue(query.value(1).toBool());
+
         question.addOption(option);
     }
 
@@ -525,8 +270,8 @@ Question ExamManager::getQuestion(int questionID, QString questionDescription)
         question.addTopic(query.value(0).toString());
     }
 
-
     question.setID(questionID);
     question.setDescription(questionDescription);
+    question.setImageLocation(imageLocation);
     return question;
 }

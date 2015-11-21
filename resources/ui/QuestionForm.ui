@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>812</width>
-    <height>171</height>
+    <width>687</width>
+    <height>361</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -507,11 +507,14 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QGroupBox" name="alternativesArea">
-     <property name="title">
-      <string/>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <layout class="QGridLayout" name="alternativeLayout"/>
+     </item>
+     <item>
+      <layout class="QGridLayout" name="imageLayout"/>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

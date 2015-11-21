@@ -15,11 +15,13 @@ public:
     void addOption(Option option);
     void setTopics(QStringList topics);
     void addTopic(QString topic);
+    void setImageLocation(QString imageLocation);
 
     int getID() const;
     QString getDescription() const;
     QList<Option> getOptions() const;
     QStringList getTopics() const;
+    QString getImageLocation();
 
     bool operator==(const Question &question) const;
 
@@ -29,6 +31,7 @@ private:
     QString description;
     QList<Option> options;
     QStringList topics;
+    QString imageLocation;
 };
 
 #endif // QUESTION_HPP

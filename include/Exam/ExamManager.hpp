@@ -5,6 +5,7 @@
 #include <QString>
 #include <QMap>
 #include "QuizManExam.hpp"
+#include "QuestionDBManager.hpp"
 
 class ExamManager
 {
@@ -27,16 +28,6 @@ public:
 
     int getAmountQuestions();
 
-    QStringList getDBAreas();
-    QStringList getDBSubjects(QString area);
-    QStringList getDBTopics(QString subject);
-    QStringList getDBTopicsByArea(QString area);
-    QStringList getDBQuestionListByTopic(QString topic);
-    QHash<int, QString> getDBQuestionHashByTopic(QString topic);
-    QStringList getDBDetailsOfQuestion(int questionID);
-
-    int getDBAmountQuestions(QString column, QStringList columnNames);
-
     void clearExamInfo();
     bool addRegistry(QString registryName, QStringList registryValues,
                      int amount, QString criteria);
@@ -55,9 +46,11 @@ public:
     int getTime();
 private:
     void addQuestions(QString section, QString column, int amount, QStringList columnNames);
-    Question getQuestion(int questionID, QString questionDescription);
+
+    Question getQuestion(int questionID, QString questionDescription, QString imageLocation);
 
     QSqlDatabase db;
+    QuestionDBManager questionManager;
 
     QuizManExam exam;
 

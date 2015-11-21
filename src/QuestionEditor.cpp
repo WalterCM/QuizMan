@@ -6,10 +6,10 @@
 
 QuestionEditor::QuestionEditor(QWidget *parent, QSqlDatabase db) :
     QDialog(parent),
-    ui(new Ui::QuestionEditor)
+    ui(new Ui::QuestionEditor),
+    questionManager(db)
 {
     ui->setupUi(this);
-    questionManager = ExamManager(db);
     this->db = db;
     updateAreas();
 
@@ -18,6 +18,15 @@ QuestionEditor::QuestionEditor(QWidget *parent, QSqlDatabase db) :
 
     imageEdit = new DroppableImageView;
     ui->imageLayout->addWidget(imageEdit);
+
+    ui->topicEditLine->setInsertPolicy(QComboBox::NoInsert);
+    ui->optionEditLine->setInsertPolicy(QComboBox::NoInsert);
+
+    QLineEdit *lineEditTopic = new QLineEdit(this);
+    ui->topicEditLine->setLineEdit(lineEditTopic);
+
+    QLineEdit *lineEditOption = new QLineEdit(this);
+    ui->optionEditLine->setLineEdit(lineEditOption);
 }
 
 QuestionEditor::~QuestionEditor()
@@ -38,6 +47,8 @@ void QuestionEditor::on_addQuestion_clicked()
     ui->removeTopic->setEnabled(false);
 
     ui->removeOption->setEnabled(false);
+    ui->setOptionCorrect->setEnabled(false);
+    ui->setOptionIncorrect->setEnabled(false);
 }
 
 void QuestionEditor::on_deleteQuestion_clicked()
@@ -50,122 +61,9 @@ void QuestionEditor::on_deleteQuestion_clicked()
     messageBox.setFixedSize(500,200);
 
     if (answer == 0) return;
+    int questionID = ui->questionList->currentItem()->text().split("-")[0].toInt();
 
-    if (!db.open()) {
-        qDebug() << "Database not fonud";
-        return;
-    }
-    int questionID;
-    questionID = ui->questionList->currentItem()->text().split("-")[0].toInt();
-    qDebug() << "questionID: " << questionID;
-    QSqlQuery query;
-    query.prepare("SELECT a.AreaID, s.SubjectID\
-                   FROM Questions AS q\
-                   INNER JOIN TopicsQuestions AS tq\
-                   ON tq.QuestionID = q.QuestionID\
-                   INNER JOIN Topics AS t\
-                   ON t.TopicID = tq.TopicID\
-                   INNER JOIN Subjects AS s\
-                   ON s.SubjectID = t.SubjectID\
-                   INNER JOIN Areas AS a\
-                   ON a.AreaID = s.AreaID\
-                   WHERE q.QuestionID = :ID");
-    query.bindValue(":ID", questionID);
-    query.exec();
-    int areaID = 0;
-    int subjectID = 0;
-    while (query.next()) {
-        areaID = query.value(0).toInt();
-        subjectID = query.value(1).toInt();
-    }
-    qDebug() << "area: " << areaID;
-    qDebug() << "curso: " << subjectID;
-
-    query.prepare("DELETE FROM Questions\
-                   WHERE QuestionID = :ID");
-    query.bindValue(":ID", questionID);
-    query.exec();
-
-    query.prepare("SELECT TopicID\
-                   FROM TopicsQuestions\
-                   WHERE QuestionID = :ID");
-
-    query.bindValue(":ID", questionID);
-    query.exec();
-    QList<int> topicsID;
-    while(query.next()) {
-        qDebug() << "topicID: " << query.value(0).toString();
-        topicsID << query.value(0).toInt();
-    }
-
-    qDebug() << "borrando opciones...";
-    query.prepare("DELETE FROM Options\
-                   WHERE QuestionID = :ID");
-    query.bindValue(":ID", questionID);
-    query.exec();
-
-    qDebug() << "borrando topicsQuestions...";
-    query.prepare("DELETE FROM TopicsQuestions\
-                   WHERE QuestionID = :ID");
-    query.bindValue(":ID", questionID);
-    query.exec();
-
-    foreach (int topicID, topicsID) {
-        query.prepare("SELECT COUNT(*)\
-                       FROM TopicsQuestions AS tq\
-                       INNER JOIN Topics AS t\
-                       ON t.TopicID = tq.TopicID\
-                       WHERE tq.TopicID = :ID");
-        query.bindValue(":ID", topicID);
-        query.exec();
-        query.next();
-        qDebug() << "count of topics: " << query.value(0).toString();
-        if (query.value(0).toInt() == 0) {
-            qDebug() << "borrando temas...";
-            query.prepare("DELETE FROM Topics\
-                           WHERE TopicID = :ID");
-            query.bindValue(":ID", topicID);
-            query.exec();
-            query.next();
-        }
-    }
-
-    query.prepare("SELECT COUNT(*)\
-                   FROM Topics AS t\
-                   INNER JOIN Subjects AS s\
-                   ON s.SubjectID = t.SubjectID\
-                   WHERE s.SubjectID = :ID");
-    query.bindValue(":ID", subjectID);
-    query.exec();
-    query.next();
-    qDebug() << "count of subjects: " << query.value(0).toString();
-    if (query.value(0).toInt() == 0) {
-        qDebug() << "borrando cursos...";
-        query.prepare("DELETE FROM Subjects\
-                       WHERE SubjectID = :ID");
-        query.bindValue(":ID", subjectID);
-        query.exec();
-        query.next();
-    }
-
-    query.prepare("SELECT COUNT(*)\
-                   FROM Subjects AS s\
-                   INNER JOIN Areas AS a\
-                   ON a.AreaID = s.AreaID\
-                   WHERE a.AreaID = :ID");
-    query.bindValue(":ID", areaID);
-    query.exec();
-    query.next();
-    qDebug() << "count of areas: " << query.value(0).toString();
-    if (query.value(0).toInt() == 0) {
-        qDebug() << "borrando areas...";
-        query.prepare("DELETE FROM Areas\
-                       WHERE AreaID = :ID");
-        query.bindValue(":ID", areaID);
-        query.exec();
-        query.next();
-    }
-    db.close();
+    questionManager.deleteDBQuestion(questionID);
 
     ui->detailsBrowser->clear();
     ui->questionList->clear();
@@ -217,12 +115,15 @@ void QuestionEditor::on_addTopic_clicked()
 
     QListWidgetItem *item = new QListWidgetItem(topicSelected);
     ui->topicEdit->addItem(item);
+
+    updateTopicEdit();
+    ui->addTopic->setEnabled(false);
 }
 
 void QuestionEditor::on_removeTopic_clicked()
 {   
-    QListWidgetItem *item = ui->topicEdit->currentItem();
-    ui->topicEdit->removeItemWidget(item);
+    int row = ui->topicEdit->currentRow();
+    ui->topicEdit->takeItem(row);
 
     if (ui->topicEdit->count() == 0)
         ui->removeTopic->setEnabled(false);
@@ -231,21 +132,45 @@ void QuestionEditor::on_removeTopic_clicked()
 void QuestionEditor::on_addOption_clicked()
 {
     for (int i = 0; i < ui->optionEdit->count(); i++) {
-        if (ui->optionEdit->item(i)->text() == topicSelected)
+        if (ui->optionEdit->item(i)->text() == optionSelected)
             return;
     }
 
     QListWidgetItem *item = new QListWidgetItem(optionSelected);
     ui->optionEdit->addItem(item);
+
+    updateOptionEdit();
+    ui->addOption->setEnabled(false);
 }
 
 void QuestionEditor::on_removeOption_clicked()
 {
-    QListWidgetItem *item = ui->optionEdit->currentItem();
-    ui->optionEdit->removeItemWidget(item);
+    int row = ui->optionEdit->currentRow();
+    ui->optionEdit->takeItem(row);
 
     if (ui->optionEdit->count() == 0)
         ui->removeOption->setEnabled(false);
+}
+
+void QuestionEditor::on_setOptionCorrect_clicked()
+{
+    int row = ui->optionEdit->currentRow();
+    correctOptions << row;
+
+    QString newString = ui->optionEdit->currentItem()->text();
+    newString += " (Correcta)";
+    ui->optionEdit->currentItem()->setText(newString);
+}
+
+void QuestionEditor::on_setOptionIncorrect_clicked()
+{
+    int row = ui->optionEdit->currentRow();
+    QString string = ui->optionEdit->currentItem()->text();
+    if (string[string.count() - 1] == ')') {
+        correctOptions.removeOne(row);
+        QString newString = string.split(" (Correcta)")[0];
+        ui->optionEdit->currentItem()->setText(newString);
+    }
 }
 
 void QuestionEditor::on_editorBack_clicked()
@@ -261,29 +186,67 @@ void QuestionEditor::on_editorBack_clicked()
 
 void QuestionEditor::on_editorSave_clicked()
 {
+    QString areaName = ui->areaEdit->currentText();
+    QString subjectName = ui->subjectEdit->currentText();
+    QString questionDescription = ui->descriptionEdit->toPlainText();
+    QString questionImageLocation = "";
+    QStringList topics;
+    for (int i = 0; i < ui->topicEdit->count(); i++)
+        topics << ui->topicEdit->item(i)->text();
+
+    QStringList options;
+    for (int i = 0; i < ui->optionEdit->count(); i++) {
+        options << ui->optionEdit->item(i)->text().split(" (Correcta)")[0];
+    }
+
+    if (areaName == "" || subjectName == "" ||
+        questionDescription == "" || topics.count() == 0 ||
+        options.count() == 0 || correctOptions.count() == 0) {
+
+        QMessageBox messageBox;
+        messageBox.critical(this, "Faltan datos",
+                            "Solo la imagen es opcional. Los demas datos son obligatorios."
+                            "Adicionalmente, al menos una opcion debe ser correcta.");
+        messageBox.setFixedSize(500,200);
+
+        return;
+    }
+
     QMessageBox messageBox;
-    int answer = messageBox.question(this,"Esta apunto de agregar una pregunta",
+    int answer = messageBox.question(this, "Esta apunto de agregar una pregunta",
                         "Esta seguro que desea agregar la pregunta?",
                         "Regresar", "Agregar pregunta");
     messageBox.setFixedSize(500,200);
 
     if (answer == 0) return;
 
-    if (!db.open()) {
-        qDebug() << "Database not found";
-        return;
-    }
-    QSqlQuery query;
-
+    QString oldPath = imageEdit->getFileName();
     if (adding) {
-        query.prepare("");
+        if (oldPath != "") {
+            QString format = oldPath.split(".")[1];
+            format = "." + format;
+            int num = questionManager.getDBLastID();
+            QString newPath = "resources/images/question" + QString::number(num) + format;
+            qDebug() << "oldpath: " << oldPath;
+            qDebug() << "newpath: " << newPath;
+            QFile::copy(oldPath, newPath);
+            questionImageLocation = newPath;
+        }
+
+        questionManager.insertDBQuestion(areaName, subjectName,
+                                         questionDescription,
+                                         questionImageLocation,
+                                         topics,
+                                         options,
+                                         correctOptions);
     } else if (editing) {
-        query.prepare("");
     }
 
-    db.close();
     adding = false;
     editing = false;
+
+    ui->stackedWidget->setCurrentWidget(ui->display);
+    updateAll();
 }
 
 void QuestionEditor::on_areaEdit_currentTextChanged(const QString &arg1)
@@ -345,6 +308,8 @@ void QuestionEditor::on_topicEdit_itemClicked(QListWidgetItem *item)
 void QuestionEditor::on_optionEdit_itemClicked(QListWidgetItem *item)
 {
     ui->removeOption->setEnabled(true);
+    ui->setOptionCorrect->setEnabled(true);
+    ui->setOptionIncorrect->setEnabled(true);
 }
 
 void QuestionEditor::updateAll()
@@ -455,14 +420,15 @@ void QuestionEditor::updateTopicEdit()
     ui->topicEditLine->clear();
     ui->topicEditLine->addItems(questionManager.getDBTopics(subjectSelected));
 
-    ui->topicEditLine->setInsertPolicy(QComboBox::NoInsert);
     ui->topicEditLine->setCurrentIndex(-1);
-
-    QLineEdit *lineEdit = new QLineEdit(this);
-    ui->topicEditLine->setLineEdit(lineEdit);
 }
 
 void QuestionEditor::updateOptionEdit()
 {
+    ui->optionEditLine->clear();
+    //ui->topicEditLine->addItems(questionManager.getDBOptions(questionID));
 
+    ui->optionEditLine->setCurrentIndex(-1);
 }
+
+

@@ -11,7 +11,8 @@
 MainWindow::MainWindow(QString accountName, QSqlDatabase database) :
     ui(new Ui::MainWindow),
     accountManager(AccountManager(database)),
-    examManager(ExamManager(database))
+    examManager(ExamManager(database)),
+    questionManager(database)
 {
     this->database = database;
     ui->setupUi(this);
@@ -19,6 +20,7 @@ MainWindow::MainWindow(QString accountName, QSqlDatabase database) :
     ui->summaryHistory->setText(accountManager.getSummaryHistory(accountName));
     accountManager = AccountManager(database),
     examManager = ExamManager(database);
+    questionManager = QuestionDBManager(database);
 }
 
 MainWindow::~MainWindow()
@@ -45,7 +47,7 @@ void MainWindow::on_createCustonExamButton_clicked()
 
     ui->stackedWidget->setCurrentWidget(ui->CustomExamCreationPage);
     ui->areaList->clear();
-    ui->areaList->addItems(examManager.getDBAreas());
+    ui->areaList->addItems(questionManager.getDBAreas());
     ui->areaList->sortItems();
 
     ui->cronometerMinutes->setEnabled(false);
@@ -98,16 +100,23 @@ void MainWindow::on_customExamCreate_clicked()
 
         contents->setLayout(layout);
 
-        area->setWidgetResizable(true);;
+        area->setWidgetResizable(true);
 
         QMap<int, Question> questions = examManager.getQuestionsAtSection(sectionName);
         foreach (int index, questions.keys()) {
             QuestionForm *form = new QuestionForm();
             form->setQuestion(QString::number(index) + ". " +
                               questions[index].getDescription());
+
+            QList<Option> options = questions[index].getOptions();
+            foreach (Option option, options) {
+                form->addAlternative(option.getDescription());
+            }
+
+            form->setImage(questions[index].getImageLocation());
+
             layout->addWidget(form);
         }
-
         page->layout()->addWidget(area);
 
         ui->examArea->addTab(page, sectionName);
@@ -161,8 +170,8 @@ void MainWindow::on_areaList_itemSelectionChanged()
     ui->topicList->clear();
 
     foreach (QString area, areas) {
-        QStringList subjects = examManager.getDBSubjects(area);
-        QStringList topics = examManager.getDBTopicsByArea(area);
+        QStringList subjects = questionManager.getDBSubjects(area);
+        QStringList topics = questionManager.getDBTopicsByArea(area);
 
         ui->subjectList->addItems(subjects);
         ui->topicList->addItems(topics);
@@ -194,7 +203,7 @@ void MainWindow::on_subjectList_itemSelectionChanged()
 
             QStringList areas = areaSelected;
             foreach (QString area, areas) {
-                QStringList topics = examManager.getDBTopicsByArea(area);
+                QStringList topics = questionManager.getDBTopicsByArea(area);
 
                 ui->topicList->addItems(topics);
                 ui->topicList->sortItems();
@@ -209,7 +218,7 @@ void MainWindow::on_subjectList_itemSelectionChanged()
     QStringList topics;
 
     foreach (QString subject, subjects) {
-        topics.append(examManager.getDBTopics(subject));
+        topics.append(questionManager.getDBTopics(subject));
     }
 
     ui->topicList->addItems(topics);
@@ -276,7 +285,7 @@ void MainWindow::on_addRegistry_clicked()
         foreach (QString item, selected) {
             QStringList registryValues;
             registryValues << item;
-            int maxAmount = examManager.getDBAmountQuestions(criteria, registryValues);
+            int maxAmount = questionManager.getDBAmountQuestions(criteria, registryValues);
             if (maxAmount < amount) {
                 amountError(maxAmount);
                 on_addRegistry_clicked();
@@ -298,7 +307,7 @@ void MainWindow::on_addRegistry_clicked()
         QStringList registryValues = selected;
 
         registryName = registryDialog.getRegistryName();
-        int maxAmount = examManager.getDBAmountQuestions(criteria, registryValues);
+        int maxAmount = questionManager.getDBAmountQuestions(criteria, registryValues);
         if (maxAmount < amount) {
             amountError(maxAmount);
             on_addRegistry_clicked();
@@ -335,7 +344,7 @@ void MainWindow::on_editRegistry_clicked()
     if (!registryEdit.areChangesAccepted()) return;
     QString criteria = examManager.getRegistryCriteria(oldName);
 
-    int maxAmount = examManager.getDBAmountQuestions(criteria, registryValues);
+    int maxAmount = questionManager.getDBAmountQuestions(criteria, registryValues);
     if (maxAmount < amount) {
         amountError(maxAmount);
         on_editRegistry_clicked();

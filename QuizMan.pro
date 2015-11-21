@@ -26,7 +26,8 @@ SOURCES += src/Main.cpp\
         src/RegistryEdit.cpp \
         src/QuestionForm.cpp \
         src/QuestionEditor.cpp \
-        src/DroppableImageView.cpp
+        src/DroppableImageView.cpp \
+        src/Exam/QuestionDBManager.cpp
 
 HEADERS  += include/IntroWindow.hpp \
         include/Account.hpp \
@@ -44,7 +45,8 @@ HEADERS  += include/IntroWindow.hpp \
         include/QuestionForm.hpp \
         include/QuestionForm.hpp \
         include/QuestionEditor.hpp \
-        include/DroppableImageView.hpp
+        include/DroppableImageView.hpp \
+        include/Exam/QuestionDBManager.hpp
 
 FORMS    += resources/ui/IntroWindow.ui \
         resources/ui/MainWindow.ui \
@@ -59,3 +61,5 @@ DESTDIR = $$PWD
 
 RESOURCES += \
     resources/resources.qrc
+
+DISTFILES +=
