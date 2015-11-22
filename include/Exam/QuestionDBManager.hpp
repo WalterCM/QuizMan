@@ -11,8 +11,17 @@ public:
     QuestionDBManager();
     QuestionDBManager(QSqlDatabase db);
 
-    void insertDBQuestion(QString areaName, QString subjectName, QString questionDescription, QString questionImageLocation, QStringList topicNames, QStringList options, QList<int> correctOptions);
+    void insertDBQuestion(QString areaName, QString subjectName,
+                          QString questionDescription,
+                          QString questionImageLocation,
+                          QStringList topicNames, QStringList options,
+                          QList<int> correctOptions);
     void deleteDBQuestion(int questionID);
+    void editDBQuestion(QString areaName, QString subjectName,
+                        QString questionDescription,
+                        QString questionImageLocation,
+                        QStringList topicNames, QStringList options,
+                        QList<int> correctOptions);
 
     QStringList getDBAreas();
     QStringList getDBSubjects(QString area);
@@ -37,6 +46,8 @@ private:
     void deleteDBSubject(int subjectID);
     void deleteDBTopics(int questionID);
     void deleteDBOptions(int questionID);
+
+    int editQuestionquery(QString questionDescription, questionImageLocation);
     QSqlDatabase db;
 
 

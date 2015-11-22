@@ -71,6 +71,15 @@ void QuestionDBManager::deleteDBQuestion(int questionID)
     db.close();
 }
 
+void QuestionDBManager::editDBQuestion(int questionID, QString areaName, QString subjectName,
+                                       QString questionDescription,
+                                       QString questionImageLocation,
+                                       QStringList topicNames, QStringList options,
+                                       QList<int> correctOptions)
+{
+
+}
+
 QStringList QuestionDBManager::getDBAreas()
 {
     if (!db.open()) {
@@ -591,5 +600,20 @@ void QuestionDBManager::deleteDBOptions(int questionID)
     query.prepare("DELETE FROM Options\
                    WHERE QuestionID = :ID");
     query.bindValue(":ID", questionID);
+    query.exec();
+}
+
+void QuestionDBManager::editQuestionquery(int questionID,
+                                          QString questionDescription,
+                                          QString questionImageLocation)
+{
+    QSqlQuery query;
+    query.prepare("UPDATE Questions\
+                   SET QuestionDescription = :questionDescription,\
+                       QuestionImageLocation = :questionImageLocation\
+                   WHERE QuestionID = :questionID");
+    query.bindValue(":questionDescription", questionDescription);
+    query.bindValue(":questionImageLocation", questionImageLocation);
+    query.bindValue(":questionID", questionID);
     query.exec();
 }
