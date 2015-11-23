@@ -3,10 +3,11 @@
 #include <QScrollArea>
 #include "ui_MainWindow.h"
 #include "include/MainWindow.hpp"
-#include "include/RegistryDialog.hpp"
-#include "include/RegistryEdit.hpp"
+#include "include/SectionDialog.hpp"
+#include "include/SectionEdit.hpp"
 #include "include/QuestionForm.hpp"
 #include "include/QuestionEditor.hpp"
+#include "include/IntroWindow.hpp"
 
 MainWindow::MainWindow(QString accountName, QSqlDatabase database) :
     ui(new Ui::MainWindow),
@@ -30,9 +31,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_createCustonExamButton_clicked()
 {
-    ui->addRegistry->setEnabled(false);
-    ui->editRegistry->setEnabled(false);
-    ui->removeRegistry->setEnabled(false);
+    examManager = ExamManager(database);
+
+    ui->addSection->setEnabled(false);
+    ui->editSection->setEnabled(false);
+    ui->removeSection->setEnabled(false);
     ui->customExamSave->setEnabled(false);
     ui->customExamCreate->setEnabled(false);
 
@@ -50,10 +53,27 @@ void MainWindow::on_createCustonExamButton_clicked()
     ui->areaList->addItems(questionManager.getDBAreas());
     ui->areaList->sortItems();
 
+    ui->subjectList->clear();
+    ui->topicList->clear();
+    ui->sectionList->clear();
+    ui->examSummary->clear();
+
     ui->cronometerMinutes->setEnabled(false);
     ui->cronometerMinutes->setText("60");
     ui->cronometerMinutes->setAlignment(Qt::AlignCenter);
     ui->cronometerMinutes->setValidator(new QIntValidator(1, 999, this));
+
+    QDoubleValidator *doubleValidator = new QDoubleValidator(0, 100, 2, this);
+    doubleValidator->setNotation(QDoubleValidator::StandardNotation);
+    ui->positivePoints->setEnabled(false);
+    ui->positivePoints->setText("0");
+    ui->positivePoints->setValidator(doubleValidator);
+    ui->positivePoints->setAlignment(Qt::AlignCenter);
+
+    ui->negativePoints->setEnabled(false);
+    ui->negativePoints->setText("0");
+    ui->negativePoints->setValidator(doubleValidator);
+    ui->negativePoints->setAlignment(Qt::AlignCenter);
 }
 
 void MainWindow::on_custonExamBack_clicked()
@@ -63,7 +83,7 @@ void MainWindow::on_custonExamBack_clicked()
 
 void MainWindow::on_customExamCreate_clicked()
 {
-    if (ui->registryList->count() == 0) return;
+    if (ui->sectionList->count() == 0) return;
     QMessageBox messageBox;
     int answer;
     answer = messageBox.question(this,"Esta apunto de iniciar",
@@ -72,7 +92,8 @@ void MainWindow::on_customExamCreate_clicked()
     messageBox.setFixedSize(500,200);
 
     if (answer == 0) return;
-
+    ui->examArea->clear();
+    groups = 1;
     ui->stackedWidget->setCurrentWidget(ui->ExamPage);
 
     examManager.createExam();
@@ -83,7 +104,8 @@ void MainWindow::on_customExamCreate_clicked()
     seconds = 1;
 
     ui->cronometer->setDigitCount(8);
-    startCronometer();
+    if (t > 0)
+        startCronometer();
     foreach (QString sectionName, examManager.getListOfSections()) {
         QWidget *page = new QWidget();
 
@@ -112,21 +134,24 @@ void MainWindow::on_customExamCreate_clicked()
             foreach (Option option, options) {
                 form->addAlternative(option.getDescription());
             }
-
             form->setImage(questions[index].getImageLocation());
-
+            answers.insert(index, form->getGroup()) ;
             layout->addWidget(form);
         }
+
         page->layout()->addWidget(area);
 
         ui->examArea->addTab(page, sectionName);
     }
+
+    ui->positiveDisplay->setText(ui->positivePoints->text());
+    ui->negativeDisplay->setText(ui->negativePoints->text());
 }
 
 void MainWindow::on_clearSeleccion_clicked()
 {
     examManager.clearExamInfo();
-    ui->registryList->clear();
+    ui->sectionList->clear();
     ui->content->clear();
 }
 
@@ -151,7 +176,7 @@ void MainWindow::on_topicList_itemClicked(QListWidgetItem *item)
 void MainWindow::on_areaList_itemSelectionChanged()
 {
     if (!isAreaSelected() && !isTopicSelected())
-        ui->addRegistry->setEnabled(false);
+        ui->addSection->setEnabled(false);
     QModelIndexList indexes = ui->areaList->selectionModel()->selectedIndexes();
 
     QStringList areas;
@@ -164,7 +189,7 @@ void MainWindow::on_areaList_itemSelectionChanged()
         ui->topicList->clear();
         return;
     }
-    ui->addRegistry->setEnabled(true);
+    ui->addSection->setEnabled(true);
 
     ui->subjectList->clear();
     ui->topicList->clear();
@@ -186,7 +211,7 @@ void MainWindow::on_areaList_itemSelectionChanged()
 void MainWindow::on_subjectList_itemSelectionChanged()
 {
     if (!isAreaSelected() && !isTopicSelected())
-        ui->addRegistry->setEnabled(false);
+        ui->addSection->setEnabled(false);
 
     QModelIndexList indexes = ui->subjectList->selectionModel()->selectedIndexes();
 
@@ -212,7 +237,7 @@ void MainWindow::on_subjectList_itemSelectionChanged()
         return;
     }
 
-    ui->addRegistry->setEnabled(true);
+    ui->addSection->setEnabled(true);
 
     ui->topicList->clear();
     QStringList topics;
@@ -230,7 +255,7 @@ void MainWindow::on_subjectList_itemSelectionChanged()
 void MainWindow::on_topicList_itemSelectionChanged()
 {
     if (!isAreaSelected() && !isSubjectSelected())
-        ui->addRegistry->setEnabled(false);
+        ui->addSection->setEnabled(false);
     QModelIndexList indexes = ui->topicList->selectionModel()->selectedIndexes();
 
     QStringList topics;
@@ -242,18 +267,18 @@ void MainWindow::on_topicList_itemSelectionChanged()
         return;
     }
 
-    ui->addRegistry->setEnabled(true);
+    ui->addSection->setEnabled(true);
 
     topicSelected = topics;
 }
 
-void MainWindow::on_registryList_itemSelectionChanged()
+void MainWindow::on_sectionList_itemSelectionChanged()
 {
-    ui->editRegistry->setEnabled(isRegistrySelected());
-    ui->removeRegistry->setEnabled(isRegistrySelected());
+    ui->editSection->setEnabled(isSectionSelected());
+    ui->removeSection->setEnabled(isSectionSelected());
 }
 
-void MainWindow::on_addRegistry_clicked()
+void MainWindow::on_addSection_clicked()
 {
     if (!isSomethingSelected()) return;
 
@@ -270,54 +295,54 @@ void MainWindow::on_addRegistry_clicked()
         criteria = "Area";
     }
 
-    QString registryName = ("Seccion " + QString::number(groups));
+    QString SectionName = ("Seccion " + QString::number(groups));
 
-    RegistryDialog registryDialog(this, registryName, selected);
-    registryDialog.setModal(true);
-    registryDialog.setFixedSize(registryDialog.size());
-    registryDialog.exec();
+    SectionDialog SectionDialog(this, SectionName, selected);
+    SectionDialog.setModal(true);
+    SectionDialog.setFixedSize(SectionDialog.size());
+    SectionDialog.exec();
 
-    if (!registryDialog.isCorrect()) return;
+    if (!SectionDialog.isCorrect()) return;
 
-    int amount = registryDialog.getAmountOfQuestions();
+    int amount = SectionDialog.getAmountOfQuestions();
 
-    if (registryDialog.isSeparated()) {
+    if (SectionDialog.isSeparated()) {
         foreach (QString item, selected) {
-            QStringList registryValues;
-            registryValues << item;
-            int maxAmount = questionManager.getDBAmountQuestions(criteria, registryValues);
+            QStringList SectionValues;
+            SectionValues << item;
+            int maxAmount = questionManager.getDBAmountQuestions(criteria, SectionValues);
             if (maxAmount < amount) {
                 amountError(maxAmount);
-                on_addRegistry_clicked();
+                on_addSection_clicked();
                 return;
             }
         }
 
         foreach (QString item, selected) {
-            QStringList registryValue;
-            registryValue.push_back(item);
-            registryName = "";
-            registryName.append("Seccion " + QString::number(groups++));
+            QStringList SectionValue;
+            SectionValue.push_back(item);
+            SectionName = "";
+            SectionName.append("Seccion " + QString::number(groups++));
 
-            examManager.addRegistry(registryName, registryValue, amount, criteria);
+            examManager.addSection(SectionName, SectionValue, amount, criteria);
 
-            ui->registryList->addItem(registryName);
+            ui->sectionList->addItem(SectionName);
         }
     } else {
-        QStringList registryValues = selected;
+        QStringList SectionValues = selected;
 
-        registryName = registryDialog.getRegistryName();
-        int maxAmount = questionManager.getDBAmountQuestions(criteria, registryValues);
+        SectionName = SectionDialog.getSectionName();
+        int maxAmount = questionManager.getDBAmountQuestions(criteria, SectionValues);
         if (maxAmount < amount) {
             amountError(maxAmount);
-            on_addRegistry_clicked();
+            on_addSection_clicked();
             return;
         }
         groups++;
 
-        examManager.addRegistry(registryName, registryValues, amount, criteria);
+        examManager.addSection(SectionName, SectionValues, amount, criteria);
 
-        ui->registryList->addItem(registryName);
+        ui->sectionList->addItem(SectionName);
     }
 
     ui->customExamSave->setEnabled(true);
@@ -326,61 +351,61 @@ void MainWindow::on_addRegistry_clicked()
     updateSummary();
 }
 
-void MainWindow::on_editRegistry_clicked()
+void MainWindow::on_editSection_clicked()
 {
-    if (!isRegistrySelected()) return;
+    if (!isSectionSelected()) return;
 
-    QString registryName = ui->registryList->currentItem()->text();
-    QStringList registryValues = examManager.getRegistryValues(registryName);
-    int amount = examManager.getRegistryAmount(registryName);
-    RegistryEdit registryEdit(this, registryName, registryValues, amount);
-    registryEdit.setModal(true);
-    registryEdit.setFixedSize(registryEdit.size());
-    registryEdit.exec();
-    QString oldName = registryName;
-    registryName = registryEdit.getRegistryName();
-    registryValues = registryEdit.getRegistryValues();
-    amount = registryEdit.getRegistryAmount();
-    if (!registryEdit.areChangesAccepted()) return;
-    QString criteria = examManager.getRegistryCriteria(oldName);
+    QString SectionName = ui->sectionList->currentItem()->text();
+    QStringList SectionValues = examManager.getSectionValues(SectionName);
+    int amount = examManager.getSectionAmount(SectionName);
+    SectionEdit SectionEdit(this, SectionName, SectionValues, amount);
+    SectionEdit.setModal(true);
+    SectionEdit.setFixedSize(SectionEdit.size());
+    SectionEdit.exec();
+    QString oldName = SectionName;
+    SectionName = SectionEdit.getSectionName();
+    SectionValues = SectionEdit.getSectionValues();
+    amount = SectionEdit.getSectionAmount();
+    if (!SectionEdit.areChangesAccepted()) return;
+    QString criteria = examManager.getSectionCriteria(oldName);
 
-    int maxAmount = questionManager.getDBAmountQuestions(criteria, registryValues);
+    int maxAmount = questionManager.getDBAmountQuestions(criteria, SectionValues);
     if (maxAmount < amount) {
         amountError(maxAmount);
-        on_editRegistry_clicked();
+        on_editSection_clicked();
         return;
     }
 
-    examManager.editRegistry(oldName, registryName, registryValues, amount, criteria);
+    examManager.editSection(oldName, SectionName, SectionValues, amount, criteria);
 
     ui->content->clear();
-    ui->registryList->clear();
-    ui->registryList->addItems(examManager.getRegistryNames());
+    ui->sectionList->clear();
+    ui->sectionList->addItems(examManager.getSectionNames());
 
     updateSummary();
 }
 
-void MainWindow::on_removeRegistry_clicked()
+void MainWindow::on_removeSection_clicked()
 {
-    if (!isRegistrySelected()) return;
-    examManager.removeRegistry(ui->registryList->currentItem()->text());
-    ui->registryList->takeItem(ui->registryList->currentRow());
+    if (!isSectionSelected()) return;
+    examManager.removeSection(ui->sectionList->currentItem()->text());
+    ui->sectionList->takeItem(ui->sectionList->currentRow());
     ui->content->clear();
 
     updateSummary();
 
-    if (ui->registryList->count() == 0) {
+    if (ui->sectionList->count() == 0) {
         ui->customExamSave->setEnabled(false);
         ui->customExamCreate->setEnabled(false);
     }
 }
 
-void MainWindow::on_registryList_itemClicked(QListWidgetItem *item)
+void MainWindow::on_sectionList_itemClicked(QListWidgetItem *item)
 {
-    QStringList contentList = examManager.getRegistryValues(item->text());
+    QStringList contentList = examManager.getSectionValues(item->text());
 
     ui->content->clear();
-    QString amount = QString::number(examManager.getRegistryAmount(item->text()));
+    QString amount = QString::number(examManager.getSectionAmount(item->text()));
 
     ui->content->append("<b>Cantidad: " + amount + "</b>");
     ui->content->append("");
@@ -394,14 +419,43 @@ void MainWindow::on_cronometerCheckBox_clicked(bool checked)
     ui->cronometerMinutes->setEnabled(checked);
     examManager.setTime(ui->cronometerMinutes->text().toInt() * checked);
 
-    if (ui->registryList->count() == 1)
+    if (ui->sectionList->count() == 1)
         updateSummary();
 }
 
 void MainWindow::on_cronometerMinutes_textEdited(const QString &arg1)
 {
     examManager.setTime(arg1.toInt());
+    updateSummary();
+}
 
+void MainWindow::on_positiveCheckBox_clicked(bool checked)
+{
+    ui->positivePoints->setEnabled(checked);
+    examManager.setPositive(ui->positivePoints->text().toDouble() * checked);
+
+    if (ui->sectionList->count() == 1)
+        updateSummary();
+}
+
+void MainWindow::on_positivePoints_textEdited(const QString &arg1)
+{
+    examManager.setPositive(arg1.toDouble());
+    updateSummary();
+}
+
+void MainWindow::on_negativeCheckBox_clicked(bool checked)
+{
+    ui->negativePoints->setEnabled(checked);
+    examManager.setNegative(ui->negativePoints->text().toDouble() * checked);
+
+    if (ui->sectionList->count() == 1)
+        updateSummary();
+}
+
+void MainWindow::on_negativePoints_textEdited(const QString &arg1)
+{
+    examManager.setNegative(arg1.toDouble());
     updateSummary();
 }
 
@@ -411,6 +465,72 @@ void MainWindow::on_actionQuizManEditor_triggered()
     editor.setModal(true);
     editor.setFixedSize(editor.size());
     editor.exec();
+}
+
+void MainWindow::on_endExam_clicked()
+{
+    setChosenAnswers();
+    ui->stackedWidget->setCurrentWidget(ui->ResultsPage);
+    ui->resultArea->clear();
+    ui->resultSections->clear();
+    ui->resultQuestions->clear();
+    ui->resultByQuestion->clear();
+    foreach (QString line, examManager.getResults()) {
+        ui->resultArea->append(line);
+    }
+
+    ui->resultSections->addItems(examManager.getSectionNames());
+}
+
+void MainWindow::on_examBack_clicked()
+{
+    ui->stackedWidget->setCurrentWidget(ui->CustomExamCreationPage);
+}
+
+void MainWindow::on_resultSections_itemClicked(QListWidgetItem *item)
+{
+    QString sectionName = item->text();
+    QList<Question> questions = examManager.getQuestionsAtSection(sectionName).values();
+    foreach (Question question, questions) {
+        ui->resultQuestions->addItem(question.getDescription());
+    }
+}
+
+void MainWindow::on_resultQuestions_itemClicked(QListWidgetItem *item)
+{
+    int questionRow = ui->resultQuestions->row(item);
+    ui->resultByQuestion->clear();
+    foreach (QString line, examManager.getResultsByQuestion(questionRow)) {
+        ui->resultByQuestion->append(line);
+    }
+}
+
+void MainWindow::on_resultsBack_clicked()
+{
+    ui->stackedWidget->setCurrentWidget(ui->MainPage);
+}
+
+void MainWindow::on_actionSignOut_triggered()
+{
+    this->hide();
+    introWindow = new IntroWindow(database);
+    introWindow->show();
+
+}
+
+void MainWindow::on_createExamButton_clicked()
+{
+    ui->stackedWidget->setCurrentWidget(ui->ExamSelecionPage);
+}
+
+void MainWindow::on_actionNewExam_triggered()
+{
+    on_createExamButton_clicked();
+}
+
+void MainWindow::on_examSelectionBack_clicked()
+{
+    ui->stackedWidget->setCurrentWidget(ui->MainPage);
 }
 
 bool MainWindow::isSomethingSelected()
@@ -451,15 +571,15 @@ bool MainWindow::isTopicSelected()
     return isTopicSelected;
 }
 
-bool MainWindow::isRegistrySelected()
+bool MainWindow::isSectionSelected()
 {
-    bool isRegistrySelected = false;
-    for (int i = 0; i < ui->registryList->count(); i++) {
-        QListWidgetItem *item = ui->registryList->item(i);
-        if (ui->registryList->isItemSelected(item)) isRegistrySelected = true;
+    bool isSectionSelected = false;
+    for (int i = 0; i < ui->sectionList->count(); i++) {
+        QListWidgetItem *item = ui->sectionList->item(i);
+        if (ui->sectionList->isItemSelected(item)) isSectionSelected = true;
     }
 
-    return isRegistrySelected;
+    return isSectionSelected;
 }
 
 void MainWindow::clearSelections()
@@ -521,7 +641,7 @@ void MainWindow::updateSummary()
 void MainWindow::startCronometer()
 {
     timer = new QTimer(this);
-    QObject::connect(timer ,  SIGNAL(timeout ()),this,SLOT(updateCronometer()));
+    QObject::connect(timer ,  SIGNAL(timeout()),this,SLOT(updateCronometer()));
 
     timer->start(1000);
 
@@ -550,4 +670,24 @@ void MainWindow::updateCronometer()
         text[5] = ' ';
     }
     ui->cronometer->display(text);
+
+    examManager.setTime(hours * 60 + minutes + seconds / 60);
+
+    if (hours == 0 && minutes == 0 && seconds == 0) {
+        on_endExam_clicked();
+    }
 }
+
+ void MainWindow::setChosenAnswers()
+ {
+    QVector<QString> chosenAnswers;
+    foreach (QButtonGroup *answer, answers.values()) {
+        if (answer->checkedButton())
+            chosenAnswers.push_back(answer->checkedButton()->text());
+        else
+            chosenAnswers.push_back("");
+    }
+    examManager.setChosenAnswers(chosenAnswers);
+ }
+
+

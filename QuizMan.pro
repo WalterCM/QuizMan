@@ -22,12 +22,12 @@ SOURCES += src/Main.cpp\
         src/Exam/Question.cpp \
         src/Exam/Option.cpp \
         src/Exam/ExamManager.cpp \
-        src/RegistryDialog.cpp \
-        src/RegistryEdit.cpp \
         src/QuestionForm.cpp \
         src/QuestionEditor.cpp \
         src/DroppableImageView.cpp \
-        src/Exam/QuestionDBManager.cpp
+        src/Exam/QuestionDBManager.cpp \
+    src/SectionEdit.cpp \
+    src/SectionDialog.cpp
 
 HEADERS  += include/IntroWindow.hpp \
         include/Account.hpp \
@@ -40,22 +40,20 @@ HEADERS  += include/IntroWindow.hpp \
         include/Exam/Option.hpp \
         include/Exam/ExamManager.hpp \
         include/Exam.hpp \
-        include/RegistryDialog.hpp \
-        include/RegistryEdit.hpp \
-        include/QuestionForm.hpp \
         include/QuestionForm.hpp \
         include/QuestionEditor.hpp \
         include/DroppableImageView.hpp \
-        include/Exam/QuestionDBManager.hpp
+        include/Exam/QuestionDBManager.hpp \
+    include/SectionDialog.hpp \
+    include/SectionEdit.hpp
 
 FORMS    += resources/ui/IntroWindow.ui \
         resources/ui/MainWindow.ui \
-        resources/ui/RegistryDialog.ui \
-        resources/ui/RegistryEdit.ui \
-        resources/ui/QuestionForm.ui \
         resources/ui/QuestionForm.ui \
         resources/ui/QuestionEditor.ui \
-        resources/ui/DroppableImageView.ui
+        resources/ui/DroppableImageView.ui \
+    resources/ui/SectionDialog.ui \
+    resources/ui/SectionEdit.ui
 
 DESTDIR = $$PWD
 

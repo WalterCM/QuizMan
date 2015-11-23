@@ -15,7 +15,9 @@ class IntroWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit IntroWindow(QWidget *parent = 0);
+    IntroWindow(QWidget *parent = 0);
+    IntroWindow(QSqlDatabase database, QWidget *parent = 0);
+    void init();
     ~IntroWindow();
 
 private slots:

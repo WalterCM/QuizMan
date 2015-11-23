@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -482,13 +485,19 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_7">
-    <item row="0" column="0" colspan="2">
+    <item row="0" column="0" rowspan="2" colspan="2">
+     <layout class="QHBoxLayout" name="horizontalLayout_4"/>
+    </item>
+    <item row="1" column="1" colspan="2">
      <layout class="QHBoxLayout" name="horizontalLayout_3"/>
     </item>
-    <item row="1" column="0">
+    <item row="2" column="1">
      <layout class="QHBoxLayout" name="horizontalLayout_2"/>
     </item>
-    <item row="1" column="1">
+    <item row="3" column="2">
+     <layout class="QHBoxLayout" name="horizontalLayout_14"/>
+    </item>
+    <item row="2" column="2">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="styleSheet">
        <string notr="true"/>
@@ -613,13 +622,13 @@ border-width: 1px;
 }</string>
                 </property>
                 <property name="title">
-                 <string>Predefinidas por el usuario</string>
+                 <string>Examen predefinido</string>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_5">
                  <item row="0" column="0">
                   <widget class="QLabel" name="label_2">
                    <property name="text">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Crear un examen guardado&lt;/p&gt;&lt;p&gt;anteriormente en esta&lt;/p&gt;&lt;p&gt;cuenta&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Crear un examen guardado&lt;/p&gt;&lt;p&gt;anteriormente en cualquier&lt;/p&gt;&lt;p&gt;cuenta&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                   </widget>
                  </item>
@@ -694,30 +703,119 @@ border-width: 1px;
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="ExamSelecionPage"/>
+      <widget class="QWidget" name="ExamSelecionPage">
+       <layout class="QVBoxLayout" name="verticalLayout_12">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_17">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_9">
+            <item>
+             <widget class="QLabel" name="label_15">
+              <property name="text">
+               <string>Examanes</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QListView" name="listView"/>
+            </item>
+            <item>
+             <widget class="QTextBrowser" name="textBrowser_2"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_10">
+            <item>
+             <widget class="QLabel" name="label_17">
+              <property name="text">
+               <string>Secciones</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QListView" name="listView_2"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_11">
+            <item>
+             <widget class="QLabel" name="label_18">
+              <property name="text">
+               <string>Contenido</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTextBrowser" name="textBrowser"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_16">
+          <item>
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="examSelectionBack">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Atras</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="examSelectionStart">
+            <property name="text">
+             <string>Empezar examen</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="CustomExamSelecionPage"/>
       <widget class="QWidget" name="CustomExamCreationPage">
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
-           <widget class="QPushButton" name="addRegistry">
+           <widget class="QPushButton" name="addSection">
             <property name="text">
-             <string>Agregar registro</string>
+             <string>Agregar seccion</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="editRegistry">
+           <widget class="QPushButton" name="editSection">
             <property name="text">
-             <string>Modificar registro</string>
+             <string>Modificar seccion</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="removeRegistry">
+           <widget class="QPushButton" name="removeSection">
             <property name="text">
-             <string>Remover registro</string>
+             <string>Remover seccion</string>
             </property>
            </widget>
           </item>
@@ -794,7 +892,7 @@ border-width: 1px;
           <item>
            <widget class="QLabel" name="label_8">
             <property name="text">
-             <string>Registros</string>
+             <string>Secciones</string>
             </property>
            </widget>
           </item>
@@ -817,7 +915,7 @@ border-width: 1px;
         <item row="4" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_9">
           <item>
-           <widget class="QListWidget" name="registryList"/>
+           <widget class="QListWidget" name="sectionList"/>
           </item>
           <item>
            <widget class="QTextBrowser" name="content"/>
@@ -847,6 +945,40 @@ border-width: 1px;
            </widget>
           </item>
           <item>
+           <widget class="QCheckBox" name="positiveCheckBox">
+            <property name="text">
+             <string>Puntos a favor</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="positivePoints">
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="negativeCheckBox">
+            <property name="text">
+             <string>Puntos en contra</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="negativePoints">
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="horizontalSpacer_3">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -861,6 +993,12 @@ border-width: 1px;
           </item>
           <item>
            <widget class="QPushButton" name="custonExamBack">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="text">
              <string>Atras</string>
             </property>
@@ -886,9 +1024,6 @@ border-width: 1px;
       </widget>
       <widget class="QWidget" name="ExamPage">
        <layout class="QGridLayout" name="gridLayout_8">
-        <item row="1" column="1">
-         <widget class="QComboBox" name="comboBox"/>
-        </item>
         <item row="0" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_12">
           <item>
@@ -896,29 +1031,174 @@ border-width: 1px;
           </item>
          </layout>
         </item>
-        <item row="2" column="0">
+        <item row="1" column="0">
          <widget class="QTabWidget" name="examArea">
           <property name="currentIndex">
            <number>-1</number>
           </property>
          </widget>
         </item>
+        <item row="1" column="2">
+         <layout class="QVBoxLayout" name="verticalLayout_8">
+          <item>
+           <widget class="QLabel" name="label_14">
+            <property name="text">
+             <string>Pts a favor:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="positiveDisplay">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>Pts en contra:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="negativeDisplay">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="examBack">
+            <property name="text">
+             <string>Retroceder</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="endExam">
+            <property name="text">
+             <string>Terminar</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_2">
+            <property name="text">
+             <string>PushButton</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="ResultsPage">
+       <layout class="QGridLayout" name="gridLayout_10">
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="gridLayout_9">
+          <item row="0" column="0">
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="QLabel" name="label_13">
+              <property name="text">
+               <string>Resultados generales</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTextBrowser" name="resultArea"/>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1">
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_13">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_4">
+                <item>
+                 <widget class="QLabel" name="label_10">
+                  <property name="text">
+                   <string>Secciones</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QListWidget" name="resultSections"/>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_5">
+                <item>
+                 <widget class="QLabel" name="label_11">
+                  <property name="text">
+                   <string>Preguntas</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QListWidget" name="resultQuestions"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_6">
+              <item>
+               <widget class="QLabel" name="label_12">
+                <property name="text">
+                 <string>Resultado por pregunta</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QTextBrowser" name="resultByQuestion"/>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_15">
+          <item>
+           <widget class="QPushButton" name="resultsBack">
+            <property name="text">
+             <string>Regresar a la pagina principal</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="resultsNew">
+            <property name="text">
+             <string>Crear nuevo - mismas caracteristicas</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
        </layout>
       </widget>
      </widget>
     </item>
    </layout>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>100</width>
-      <height>30</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_4"/>
-   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

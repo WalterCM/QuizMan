@@ -12,12 +12,99 @@ ExamManager::ExamManager(QSqlDatabase db)
     questionManager = QuestionDBManager(db);
 }
 
+QStringList ExamManager::getDBExamList()
+{
+    bool openedBefore = false;
+    if (db.isOpen())
+        openedBefore = true;
+
+    if (!openedBefore) {
+        if (!db.open()) {
+            qDebug() << "Database not fonud";
+            return QStringList();
+        }
+    }
+
+    QSqlQuery query;
+    query.exec("SELECT ExamName FROM Exams");
+    QStringList examList;
+    while (query.next()) {
+        examList << query.value(0).toString();
+    }
+    if (!openedBefore)
+        db.close();
+
+    return examList;
+}
+
+QStringList ExamManager::getDBSectionList(QString examName)
+{
+    bool openedBefore = false;
+    if (db.isOpen())
+        openedBefore = true;
+
+    if (!openedBefore) {
+        if (!db.open()) {
+            qDebug() << "Database not fonud";
+            return QStringList();
+        }
+    }
+
+    QSqlQuery query;
+    query.prepare("SELECT s.SectionName\
+                   FROM Sections AS s\
+                   INNER JOIN Exams AS e\
+                   ON e.ExamID = s.ExamID\
+                   WHERE e.ExamName = :examName");
+    query.bindValue(":examName", examName);
+    query.exec();
+    QStringList sectionList;
+    while (query.next()) {
+        sectionList << query.value(0).toString();
+    }
+    if (!openedBefore)
+        db.close();
+
+    return sectionList;
+}
+
+QStringList ExamManager::getDBRestigerList(QString sectionName)
+{
+    bool openedBefore = false;
+    if (db.isOpen())
+        openedBefore = true;
+
+    if (!openedBefore) {
+        if (!db.open()) {
+            qDebug() << "Database not fonud";
+            return QStringList();
+        }
+    }
+
+    QSqlQuery query;
+    query.prepare("SELECT r.RegisterName\
+                   FROM Registers as r\
+                   INNER JOIN Sections AS s\
+                   ON s.SectionID = r.SectionID\
+                   WHERE s.SectionName = :sectionName");
+    query.bindValue(":sectionName", sectionName);
+    query.exec();
+    QStringList registerList;
+    while (query.next()) {
+        registerList << query.value(0).toString();
+    }
+    if (!openedBefore)
+        db.close();
+
+    return registerList;
+}
+
 void ExamManager::createExam()
 {
-    foreach (int index, registryCount.keys()) {
-        QString section = registryCount[index];
-        QStringList list = registers[index];
-        QString criteria = registryCriteria[index];
+    foreach (int index, sectionCount.keys()) {
+        QString section = sectionCount[index];
+        QStringList list = sections[index];
+        QString criteria = sectionCriteria[index];
 
         if (criteria == "Area") {
             addByArea(section, infoAmount[index], list);
@@ -95,84 +182,88 @@ void ExamManager::clearExamInfo()
     if (!infoAmount.empty())
         infoAmount.clear();
 
-    if (!registers.empty())
-        registers.clear();
+    if (!sections.empty())
+        sections.clear();
 
-    if (!registryCount.empty())
-        registryCount.clear();
+    if (!sectionCount.empty())
+        sectionCount.clear();
 
-    sections = 0;
+    sectionID = 0;
 }
 
-bool ExamManager::addRegistry(QString registryName, QStringList registryValues,
+bool ExamManager::addSection(QString sectionName, QStringList sectionValues,
                               int amount, QString criteria)
 {
-    int maxAmount = questionManager.getDBAmountQuestions(criteria, registryValues);
+    int maxAmount = questionManager.getDBAmountQuestions(criteria, sectionValues);
     if (amount > maxAmount)
         return false;
-    registryCount.insert(sections, registryName);
-    registers.insert(sections, registryValues);
-    infoAmount.insert(sections, amount);
-    registryCriteria.insert(sections++, criteria);
+    sectionCount.insert(sectionID, sectionName);
+    sections.insert(sectionID, sectionValues);
+    infoAmount.insert(sectionID, amount);
+    sectionCriteria.insert(sectionID++, criteria);
 
     return true;
 }
 
-bool ExamManager::removeRegistry(QString registryName)
+bool ExamManager::removeSection(QString sectionName)
 {
-    sections = registryCount.key(registryName);
-    registryCriteria.remove(sections);
-    infoAmount.remove(sections);
-    registers.remove(sections);
-    registryCount.remove(sections);
+    sectionID = sectionCount.key(sectionName);
+    sectionCriteria.remove(sectionID);
+    infoAmount.remove(sectionID);
+    sections.remove(sectionID);
+    sectionCount.remove(sectionID);
     return true;
 }
 
-bool ExamManager::editRegistry(QString oldName, QString newName,
+bool ExamManager::editSection(QString oldName, QString newName,
                                QStringList newValues, int newAmount, QString criteria)
 {
     int maxAmount = questionManager.getDBAmountQuestions(criteria, newValues);
     if (newAmount > maxAmount)
         return false;
 
-    int index = registryCount.key(oldName);
-    registryCount[index] = newName;
-    registers[index] = newValues;
+    int index = sectionCount.key(oldName);
+    sectionCount[index] = newName;
+    sections[index] = newValues;
     infoAmount[index] = newAmount;
 
     return true;
 }
 
-QStringList ExamManager::getRegistryNames()
+QStringList ExamManager::getSectionNames()
 {
-    QStringList registryNames;
-    for (int i = 0; i < sections; i++) {
-        registryNames.push_back(registryCount.value(i));
+    return exam.getListOfSections();
+}
+
+QStringList ExamManager::getSectionValues(QString sectionName)
+{
+    QStringList questions;
+    foreach (Question question, exam.getQuestionsAtSection(sectionName).values()) {
+        questions << question.getDescription();
     }
 
-    return registryNames;
+    return questions;
 }
 
-QStringList ExamManager::getRegistryValues(QString registryName)
+int ExamManager::getSectionAmount(QString sectionName)
 {
-    return registers[registryCount.key(registryName)];;
+    return exam.getAmountOfQuestionsAtSection(sectionName);
 }
 
-int ExamManager::getRegistryAmount(QString registryName)
+QString ExamManager::getSectionCriteria(QString sectionName)
 {
-    return infoAmount[registryCount.key(registryName)];
-}
-
-QString ExamManager::getRegistryCriteria(QString registryName)
-{
-    return registryCriteria[registryCount.key(registryName)];
+    return sectionCriteria[sectionCount.key(sectionName)];
 }
 
 QStringList ExamManager::getSummary()
 {
     QStringList summary;
     summary << ("<b>Cronometro: " + QString::number(time) + " minutos");
-    summary << ("<b>Cantidad de secciones: </b>" + QString::number(registryCount.count()));
+    summary << "";
+    summary << "<b>Puntos a favor: </b>" + QString::number(pointsPerCorrect);
+    summary << "<b>Puntos en contra: </b>" + QString::number(pointsPerMistake);
+    summary << "";
+    summary << ("<b>Cantidad de secciones: </b>" + QString::number(sectionCount.count()));
     summary << ("<b>Cantidad de preguntas: </b>" + QString::number(getAmountQuestions()));
 
     return summary;
@@ -188,7 +279,116 @@ int ExamManager::getTime()
     return time;
 }
 
-void ExamManager::addQuestions(QString section, QString column, int amount, QStringList columnNames)
+void ExamManager::setPositive(double points)
+{
+    this->pointsPerCorrect = points;
+}
+
+int ExamManager::getPositive()
+{
+    return pointsPerCorrect;
+}
+
+void ExamManager::setNegative(double points)
+{
+    this->pointsPerMistake = points;
+}
+
+int ExamManager::getNegative()
+{
+    return pointsPerMistake;
+}
+
+void ExamManager::setChosenAnswers(QVector<QString> answers)
+{
+    this->chosenAnswers = answers;
+}
+
+QString ExamManager::getCorrectAnswer(int question)
+{
+    return correctAnswers[question];
+}
+
+QString ExamManager::getChosenAnswer(int question)
+{
+    return chosenAnswers[question];
+}
+
+QStringList ExamManager::getResults()
+{
+    QStringList result;
+    int correctNum = getAmountCorrect();
+    int incorrectNum = getAmountQuestions() - getAmountCorrect();
+    double maxPoints = getAmountQuestions() * pointsPerCorrect;
+    double actualPoints = correctNum * pointsPerCorrect - incorrectNum * pointsPerMistake;
+
+    result << "<h1>Termino el examen!</h1>";
+    result << "________________________________";
+    result << "";
+    result << "<b>Tiempo restante para acabar el examen: </b>" + QString::number(time) + " minutos";
+    result << "";
+    result << "<b>Puntos ganados por correcta: </b>" + QString::number(pointsPerCorrect);
+    result << "<b>Puntos perdidos por incorrecta: </b>" + QString::number(pointsPerMistake);
+    result << "";
+    result << "<b>Total correctas: </b>" + QString::number(correctNum);
+    result << "<b>Total incorrectas: </b>" + QString::number(incorrectNum);
+    result << "";
+    result << "<b>Puntaje maximo: </b>" + QString::number(maxPoints);
+    result << "<b>Puntaje obtenido: </b>" + QString::number(actualPoints);
+
+    return result;
+}\
+
+QStringList ExamManager::getResultsByQuestion(int questionID)
+{
+    QStringList result;
+    QString correct = getCorrectAnswer(questionID);
+    QString chosen = getChosenAnswer(questionID);
+    result << "<b>Enunciado: </b>";
+    result << exam.getQuestionAt(questionID + 1).getDescription();
+    result << "";
+    result << "<b>Respuesta correcta: </b>" + correct;
+    result << "<b>Respuesta escogida: </b>" + chosen;
+
+    bool isCorrect = (correct == chosen);
+    double neto = pointsPerCorrect * isCorrect - pointsPerMistake * !isCorrect;
+    result << "<b>Puntaje neto: </b>" + QString::number(neto);
+
+    return result;
+}
+
+int ExamManager::getAmountCorrect()
+{
+    int amount = 0;
+    for (int i = 0; i < correctAnswers.size(); i++) {
+        if (correctAnswers[i] == chosenAnswers[i])
+            amount++;
+    }
+    return amount;
+}
+
+int ExamManager::getAmountCorrectBySection(QString sectionName)
+{
+
+}
+
+int ExamManager::getAmountCorrectByArea(QString areaName)
+{
+
+}
+
+int ExamManager::getAmountCorrectBySubject(QString subjectName)
+{
+
+}
+
+int ExamManager::getAmountCorrectByTopic(QString topicName)
+{
+
+}
+
+void ExamManager::addQuestions(QString section, QString column,
+                               int amount, QStringList columnNames)
 {
     if (!db.open()) {
         qDebug() << "Database not found";
@@ -232,6 +432,7 @@ void ExamManager::addQuestions(QString section, QString column, int amount, QStr
         Question question = getQuestion(id, description, imageLocation);
 
         questionList << question;
+        correctAnswers.push_back(questionManager.getDBOptionCorrect(id));
     }
     exam.addQuestions(section, questionList);
     db.close();

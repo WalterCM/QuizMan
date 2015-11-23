@@ -9,8 +9,6 @@
 #include "Account.hpp"
 #include "Exam.hpp"
 
-class IntroWindow;
-
 namespace Ui {
 class MainWindow;
 }
@@ -39,11 +37,11 @@ private slots:
     void on_subjectList_itemSelectionChanged();
     void on_topicList_itemSelectionChanged();
 
-    void on_sectionList_itemSelectionChanged();
+    void on_SectionList_itemSelectionChanged();
     void on_addSection_clicked();
     void on_editSection_clicked();
     void on_removeSection_clicked();
-    void on_sectionList_itemClicked(QListWidgetItem *item);
+    void on_SectionList_itemClicked(QListWidgetItem *item);
 
     void on_cronometerCheckBox_clicked(bool checked);
     void on_cronometerMinutes_textEdited(const QString &arg1);
@@ -57,19 +55,11 @@ private slots:
 
     void on_actionQuizManEditor_triggered();
 
+    void onAlternativeSelected(QWidget *alternative);
+    void on_pushButton_clicked();
+
     void on_endExam_clicked();
     void on_examBack_clicked();
-
-    void on_resultSections_itemClicked(QListWidgetItem *item);
-    void on_resultQuestions_itemClicked(QListWidgetItem *item);
-
-    void on_resultsBack_clicked();
-    void on_actionSignOut_triggered();
-
-    void on_createExamButton_clicked();
-    void on_actionNewExam_triggered();
-    void on_examSelectionBack_clicked();
-
 private:
     bool isSomethingSelected();
     bool isAreaSelected();
@@ -107,8 +97,6 @@ private:
     QTimer *timer;
 
     QMap<int, QButtonGroup *> answers;
-
-    IntroWindow *introWindow;
 };
 
 #endif // MAINWINDOW_HPP

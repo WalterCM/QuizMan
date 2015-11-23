@@ -38,6 +38,13 @@ void QuestionEditor::on_addQuestion_clicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->editor);
     updateAreaEdit();
+    ui->subjectEdit->clear();
+    ui->topicEdit->clear();
+    ui->optionEdit->clear();
+    if (imageEdit->scene())
+        imageEdit->scene()->clear();
+    ui->descriptionEdit->clear();
+    correctOptions.clear();
     adding = true;
 
     ui->subjectEdit->setEnabled(false);
@@ -70,6 +77,7 @@ void QuestionEditor::on_deleteQuestion_clicked()
     ui->topicList->clear();
     ui->subjectList->clear();
     ui->areaList->clear();
+    correctOptions.clear();
     updateAreas();
 
     ui->deleteQuestion->setEnabled(false);
@@ -78,9 +86,43 @@ void QuestionEditor::on_deleteQuestion_clicked()
 
 void QuestionEditor::on_editQuestion_clicked()
 {
+    correctOptions.clear();
+    ui->areaEdit->clear();
+    ui->subjectEdit->clear();
+    ui->topicEdit->clear();
+    ui->optionEdit->clear();
+    if (imageEdit->scene())
+        imageEdit->scene()->clear();
+    ui->descriptionEdit->clear();
+
+    oldID = ui->questionList->currentItem()->text().split("-")[0].toInt();
     ui->stackedWidget->setCurrentWidget(ui->editor);
     updateAreaEdit();
     editing = true;
+
+    QString areaName = questionManager.getDBAreaByQuestion(oldID);
+    ui->areaEdit->setCurrentText(areaName);
+
+    QString subjectName = questionManager.getDBSubjectByQuestion(oldID);
+    ui->subjectEdit->setCurrentText(subjectName);
+
+    QStringList topicNames = questionManager.getDBTopicsByQuestionID(oldID);
+    ui->topicEdit->addItems(topicNames);
+
+    QStringList optionNames = questionManager.getDBOptions(oldID);
+    ui->optionEdit->addItems(optionNames);
+
+    QString questionDescription = questionManager.getDBQuestionDescription(oldID);
+    ui->descriptionEdit->setText(questionDescription);
+
+    QString correctOption = questionManager.getDBOptionCorrect(oldID);
+    for (int i = 0; i < ui->optionEdit->count(); i++) {
+        QString option = ui->optionEdit->item(i)->text();
+        if (option == correctOption) {
+            correctOptions << i;
+            ui->optionEdit->item(i)->setText(option + " (Correcta)");
+        }
+    }
 }
 
 void QuestionEditor::on_areaList_itemClicked(QListWidgetItem *item)
@@ -221,18 +263,16 @@ void QuestionEditor::on_editorSave_clicked()
     if (answer == 0) return;
 
     QString oldPath = imageEdit->getFileName();
-    if (adding) {
-        if (oldPath != "") {
-            QString format = oldPath.split(".")[1];
-            format = "." + format;
-            int num = questionManager.getDBLastID();
-            QString newPath = "resources/images/question" + QString::number(num) + format;
-            qDebug() << "oldpath: " << oldPath;
-            qDebug() << "newpath: " << newPath;
-            QFile::copy(oldPath, newPath);
-            questionImageLocation = newPath;
-        }
+    if (oldPath != "") {
+        QString format = oldPath.split(".")[1];
+        format = "." + format;
+        int num = questionManager.getDBLastID();
+        QString newPath = "resources/images/question" + QString::number(num) + format;
 
+        QFile::copy(oldPath, newPath);
+        questionImageLocation = newPath;
+    }
+    if (adding) {
         questionManager.insertDBQuestion(areaName, subjectName,
                                          questionDescription,
                                          questionImageLocation,
@@ -240,6 +280,12 @@ void QuestionEditor::on_editorSave_clicked()
                                          options,
                                          correctOptions);
     } else if (editing) {
+        questionManager.editDBQuestion(oldID, areaName, subjectName,
+                                       questionDescription,
+                                       questionImageLocation,
+                                       topics,
+                                       options,
+                                       correctOptions);
     }
 
     adding = false;

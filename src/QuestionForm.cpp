@@ -1,5 +1,6 @@
-#include <QRadioButton>
+
 #include <QDebug>
+#include <QRadioButton>
 #include "include/QuestionForm.hpp"
 #include "ui_QuestionForm.h"
 
@@ -13,6 +14,7 @@ QuestionForm::QuestionForm(QWidget *parent) :
     imageView = new QGraphicsView;
 
     ui->imageLayout->addWidget(imageView);
+
 }
 
 QuestionForm::~QuestionForm()
@@ -23,6 +25,9 @@ QuestionForm::~QuestionForm()
 void QuestionForm::setQuestion(QString question)
 {
     ui->questionArea->setText(question);
+    ui->questionArea->setFixedHeight(ui->questionArea->document()->lineCount() * 25 +
+                                     ui->questionArea->contentsMargins().bottom() +
+                                     ui->questionArea->contentsMargins().top());
 }
 
 void QuestionForm::addAlternative(QString alternative)
@@ -41,5 +46,10 @@ void QuestionForm::setImage(QString path)
     imageView->setScene(scene);
     imageView->setFixedSize(400, 400);
     scene->addPixmap(pixmap);
-    imageView->fitInView(QRect(0, 0, 1600, 1600), Qt::KeepAspectRatio);
+    imageView->fitInView(QRect(0, 0, 800, 800), Qt::KeepAspectRatio);
+}
+
+QButtonGroup *QuestionForm::getGroup()
+{
+    return group;
 }

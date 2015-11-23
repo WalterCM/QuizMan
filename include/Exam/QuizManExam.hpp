@@ -20,8 +20,10 @@ public:
     QList<Question> getQuestions();
     Question getQuestionAt(int index);
 
+    int getAmountOfSections();
     QStringList getListOfSections();
     QMap<int, Question> getQuestionsAtSection(QString section);
+    int getAmountOfQuestionsAtSection(QString section);
 
     int questionCount();
 

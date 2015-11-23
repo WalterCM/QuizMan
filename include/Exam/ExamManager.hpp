@@ -13,6 +13,10 @@ public:
     ExamManager();
     ExamManager(QSqlDatabase db);
 
+    QStringList getDBExamList();
+    QStringList getDBSectionList(QString examName);
+    QStringList getDBRestigerList(QString sectionName);
+
     void createExam();
     void addByArea(QString section, int amount, QStringList areaNames);
     void addBySubject(QString section, int amount, QStringList subjectNames);
@@ -29,21 +33,40 @@ public:
     int getAmountQuestions();
 
     void clearExamInfo();
-    bool addRegistry(QString registryName, QStringList registryValues,
+    bool addSection(QString sectionName, QStringList sectionValues,
                      int amount, QString criteria);
-    bool removeRegistry(QString registryName);
-    bool editRegistry(QString oldName, QString newName,
+    bool removeSection(QString sectionName);
+    bool editSection(QString oldName, QString newName,
                       QStringList newValues, int newAmount, QString criteria);
 
-    QStringList getRegistryNames();
-    QStringList getRegistryValues(QString registryName);
-    int getRegistryAmount(QString registryName);
-    QString getRegistryCriteria(QString registryName);
+    QStringList getSectionNames();
+    QStringList getSectionValues(QString sectionName);
+    int getSectionAmount(QString sectionName);
+    QString getSectionCriteria(QString sectionName);
 
     QStringList getSummary();
 
     void setTime(int time);
     int getTime();
+
+    void setPositive(double points);
+    int getPositive();
+
+    void setNegative(double points);
+    int getNegative();
+
+    void setChosenAnswers(QVector<QString> answers);
+    QString getCorrectAnswer(int question);
+    QString getChosenAnswer(int question);
+
+    QStringList getResults();
+    QStringList getResultsByQuestion(int questionID);
+
+    int getAmountCorrect();
+    int getAmountCorrectBySection(QString sectionName);
+    int getAmountCorrectByArea(QString areaName);
+    int getAmountCorrectBySubject(QString subjectName);
+    int getAmountCorrectByTopic(QString topicName);
 private:
     void addQuestions(QString section, QString column, int amount, QStringList columnNames);
 
@@ -55,11 +78,18 @@ private:
     QuizManExam exam;
 
     int time = 0;
-    int sections = 0;
-    QMap<int, QString> registryCount;
-    QMap<int, QStringList> registers;
+
+    double pointsPerCorrect = 0.0;
+    double pointsPerMistake = 0.0;
+
+    int sectionID = 0;
+    QMap<int, QString> sectionCount;
+    QMap<int, QStringList> sections;
     QMap<int, int> infoAmount;
-    QMap<int, QString> registryCriteria;
+    QMap<int, QString> sectionCriteria;
+
+    QVector<QString> correctAnswers;
+    QVector<QString> chosenAnswers;
 };
 
 #endif // EXAMMANAGER_HPP

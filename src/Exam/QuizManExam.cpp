@@ -30,6 +30,11 @@ Question QuizManExam::getQuestionAt(int index)
     return questionMap[index];
 }
 
+int QuizManExam::getAmountOfSections()
+{
+    return sectionMap.count();
+}
+
 QStringList QuizManExam::getListOfSections()
 {
     return sectionMap.values();
@@ -47,6 +52,11 @@ QMap<int, Question> QuizManExam::getQuestionsAtSection(QString section)
     }
 
     return questions;
+}
+
+int QuizManExam::getAmountOfQuestionsAtSection(QString section)
+{
+    return getQuestionsAtSection(section).values().count();
 }
 
 int QuizManExam::questionCount()

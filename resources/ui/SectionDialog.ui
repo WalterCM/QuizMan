@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RegistryDialog</class>
- <widget class="QDialog" name="RegistryDialog">
+ <class>SectionDialog</class>
+ <widget class="QDialog" name="SectionDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -483,17 +483,17 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Nombre de registro</string>
+        <string>Nombre de seccion</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="registryNameBox"/>
+      <widget class="QLineEdit" name="SectionNameBox"/>
      </item>
     </layout>
    </item>
    <item row="1" column="0">
-    <widget class="QTextBrowser" name="registryOutput"/>
+    <widget class="QTextBrowser" name="SectionOutput"/>
    </item>
    <item row="1" column="1">
     <widget class="QLabel" name="label">
@@ -508,7 +508,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
    <item row="2" column="0">
     <widget class="QCheckBox" name="separateCheckBox">
      <property name="text">
-      <string>Separar registros</string>
+      <string>Separar en secciones</string>
      </property>
     </widget>
    </item>
@@ -526,14 +526,14 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
     </spacer>
    </item>
    <item row="3" column="1">
-    <widget class="QPushButton" name="registryDialogCancel">
+    <widget class="QPushButton" name="SectionDialogCancel">
      <property name="text">
       <string>Cancelar</string>
      </property>
     </widget>
    </item>
    <item row="3" column="2">
-    <widget class="QPushButton" name="registryDialogOk">
+    <widget class="QPushButton" name="SectionDialogOk">
      <property name="text">
       <string>Aceptar</string>
      </property>

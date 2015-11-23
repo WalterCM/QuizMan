@@ -9,14 +9,27 @@ IntroWindow::IntroWindow(QWidget *parent) :
         ui(new Ui::IntroWindow),
         accountManager(AccountManager(database))
 {
+    // Agrega una base de datos SQLite a nuestro objeto QSqlDatabase
+    database = QSqlDatabase::addDatabase("QSQLITE");
+    init();
+}
+
+IntroWindow::IntroWindow(QSqlDatabase database, QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::IntroWindow),
+    accountManager(AccountManager(database))
+{
+    this->database = database;
+    init();
+}
+
+void IntroWindow::init()
+{
     // Configura la interfaz de usuario
     ui->setupUi(this);
 
     // Previene los cambios de tamano de pantalla
     this->setFixedSize(this->size());
-
-    // Agrega una base de datos SQLite a nuestro objeto QSqlDatabase
-    database = QSqlDatabase::addDatabase("QSQLITE");
 
     // Obtiene la direccion absoluta del programa
     // Y le agrega la direccion relativa de la base de datos

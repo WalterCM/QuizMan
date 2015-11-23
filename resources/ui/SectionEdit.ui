@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RegistryEdit</class>
- <widget class="QDialog" name="RegistryEdit">
+ <class>SectionEdit</class>
+ <widget class="QDialog" name="SectionEdit">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -483,12 +483,12 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Nombre de registro</string>
+        <string>Nombre de seccion</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="registryNameEdit"/>
+      <widget class="QLineEdit" name="SectionNameEdit"/>
      </item>
     </layout>
    </item>
@@ -505,12 +505,12 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Items del registro</string>
+      <string>Items de la seccion</string>
      </property>
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QListWidget" name="registryValuesEdit"/>
+    <widget class="QListWidget" name="SectionValuesEdit"/>
    </item>
    <item row="2" column="1" colspan="2">
     <layout class="QVBoxLayout" name="verticalLayout_3">

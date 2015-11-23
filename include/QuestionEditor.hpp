@@ -77,6 +77,8 @@ private:
     QList<int> correctOptions;
 
     DroppableImageView *imageEdit;
+
+    int oldID = 0;
 };
 
 #endif // QUESTIONEDITOR_HPP
