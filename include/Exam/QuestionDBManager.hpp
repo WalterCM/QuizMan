@@ -55,8 +55,8 @@ private:
     void deleteDBTopics(int questionID);
     void deleteDBOptions(int questionID);
 
-    void safeOpen();
-    void safeClose();
+    bool safeOpen();
+    void safeClose(bool openedBefore);
 
     QSqlDatabase db;
 };

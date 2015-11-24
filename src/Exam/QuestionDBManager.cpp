@@ -763,7 +763,7 @@ bool QuestionDBManager::safeOpen()
     if (!openedBefore) {
         if (!db.open()) {
             qDebug() << "Database not fonud";
-            exit();
+            exit(0);
         }
     }
 
