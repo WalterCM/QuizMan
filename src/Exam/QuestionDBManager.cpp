@@ -16,16 +16,7 @@ void QuestionDBManager::insertDBQuestion(QString areaName,
                                          QStringList options,
                                          QList<int> correctOptions)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return;
-        }
-    }
+    bool openedBefore = safeOpen();
 
     int areaID = insertDBArea(areaName);
     int subjectID = insertDBSubject(subjectName, areaID);
@@ -33,22 +24,13 @@ void QuestionDBManager::insertDBQuestion(QString areaName,
 
     insertDBOptions(options, questionID, correctOptions);
     insertDBTopics(topicNames, subjectID, questionID);
-    if (!openedBefore)
-        db.close();
+
+    safeClose(openedBefore);
 }
 
 void QuestionDBManager::deleteDBQuestion(int questionID)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return;
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     query.prepare("SELECT a.AreaID, s.SubjectID\
@@ -81,8 +63,7 @@ void QuestionDBManager::deleteDBQuestion(int questionID)
     deleteDBSubject(subjectID);
     deleteDBArea(areaID);
 
-    if (!openedBefore)
-        db.close();
+    safeClose(openedBefore);
 }
 
 void QuestionDBManager::editDBQuestion(int questionID, QString areaName, QString subjectName,
@@ -91,37 +72,18 @@ void QuestionDBManager::editDBQuestion(int questionID, QString areaName, QString
                                        QStringList topicNames, QStringList options,
                                        QList<int> correctOptions)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return;
-        }
-    }
+    bool openedBefore = safeOpen();
 
     deleteDBQuestion(questionID);
     insertDBQuestion(areaName, subjectName, questionDescription, questionImageLocation,
                      topicNames, options, correctOptions);
 
-    if (!openedBefore)
-        db.close();
+    safeClose(openedBefore);
 }
 
 int QuestionDBManager::getDBQuestionID(QString questionDescription)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return 0;
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     query.prepare("SELECT QuestionID\
@@ -134,24 +96,15 @@ int QuestionDBManager::getDBQuestionID(QString questionDescription)
     while (query.next()) {
         questionID << query.value(0).toInt();
     }
-    if (!openedBefore)
-        db.close();
+
+    safeClose(openedBefore);
 
     return questionID;
 }
 
 QStringList QuestionDBManager::getDBAreas()
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return QStringList();
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     query.exec("SELECT AreaName FROM Areas");
@@ -160,24 +113,15 @@ QStringList QuestionDBManager::getDBAreas()
     while (query.next()) {
         areaList << query.value(0).toString();
     }
-    if (!openedBefore)
-        db.close();
+
+    safeClose(openedBefore);
 
     return areaList;
 }
 
 QString QuestionDBManager::getDBAreaByQuestion(int questionID)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return QString();
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     query.prepare("SELECT AreaName FROM Areas AS a\
@@ -195,24 +139,15 @@ QString QuestionDBManager::getDBAreaByQuestion(int questionID)
     while (query.next()) {
         areaName = query.value(0).toString();
     }
-    if (!openedBefore)
-        db.close();
+
+    safeClose(openedBefore);
 
     return areaName;
 }
 
 QStringList QuestionDBManager::getDBSubjects(QString area)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return QStringList();
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     query.prepare("SELECT s.SubjectName\
@@ -226,24 +161,15 @@ QStringList QuestionDBManager::getDBSubjects(QString area)
     while (query.next()) {
         subjectList << query.value(0).toString();
     }
-    if (!openedBefore)
-        db.close();
+
+    safeClose(openedBefore);
 
     return subjectList;
 }
 
 QString QuestionDBManager::getDBSubjectByQuestion(int questionID)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return QString();
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     query.prepare("SELECT SubjectName FROM Subjects AS s\
@@ -259,24 +185,14 @@ QString QuestionDBManager::getDBSubjectByQuestion(int questionID)
     while (query.next()) {
         subjectName = query.value(0).toString();
     }
-    if (!openedBefore)
-        db.close();
+    safeClose(openedBefore);
 
     return subjectName;
 }
 
 QStringList QuestionDBManager::getDBTopics(QString subject)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return QStringList();
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     query.prepare("SELECT t.TopicName\
@@ -291,24 +207,15 @@ QStringList QuestionDBManager::getDBTopics(QString subject)
     while (query.next()) {
         topicList << query.value(0).toString();
     }
-    if (!openedBefore)
-        db.close();
+
+    safeClose(openedBefore);
 
     return topicList;
 }
 
 QStringList QuestionDBManager::getDBTopicsByArea(QString area)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return QStringList();
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     query.prepare("SELECT t.TopicName\
@@ -325,24 +232,15 @@ QStringList QuestionDBManager::getDBTopicsByArea(QString area)
     while (query.next()) {
         topicList << query.value(0).toString();
     }
-    if (!openedBefore)
-        db.close();
+
+    safeClose(openedBefore);
 
     return topicList;
 }
 
 QStringList QuestionDBManager::getDBTopicsByQuestionID(int questionID)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return QStringList();
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     query.prepare("SELECT t.TopicName FROM Topics AS t\
@@ -356,24 +254,15 @@ QStringList QuestionDBManager::getDBTopicsByQuestionID(int questionID)
     while (query.next()) {
         topicNames << query.value(0).toString();
     }
-    if (!openedBefore)
-        db.close();
+
+    safeClose(openedBefore);
 
     return topicNames;
 }
 
 QString QuestionDBManager::getDBQuestionDescription(int questionID)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return QString();
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     query.prepare("SELECT QuestionDescription\
@@ -386,24 +275,15 @@ QString QuestionDBManager::getDBQuestionDescription(int questionID)
     while (query.next()) {
         questionDescription = query.value(0).toString();
     }
-    if (!openedBefore)
-        db.close();
+
+    safeClose(openedBefore);
 
     return questionDescription;
 }
 
 QStringList QuestionDBManager::getDBQuestionListByTopic(QString topic)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return QStringList();
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     query.prepare("SELECT q.QuestionDescription\
@@ -420,24 +300,15 @@ QStringList QuestionDBManager::getDBQuestionListByTopic(QString topic)
     while (query.next()) {
         questionList << query.value(0).toString();
     }
-    if (!openedBefore)
-        db.close();
+
+    safeClose(openedBefore);
 
     return questionList;
 }
 
 QHash<int, QString> QuestionDBManager::getDBQuestionHashByTopic(QString topic)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return QHash<int, QString>();
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     query.prepare("SELECT q.QuestionID, q.QuestionDescription\
@@ -456,24 +327,15 @@ QHash<int, QString> QuestionDBManager::getDBQuestionHashByTopic(QString topic)
                             query.value(1).toString());
     }
 
-    if (!openedBefore)
-        db.close();
+    safeClose(openedBefore);
 
     return questionList;
 }
 
 QStringList QuestionDBManager::getDBDetailsOfQuestion(int questionID)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
+    bool openedBefore = safeOpen();
 
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return QStringList();
-        }
-    }
     QStringList detailsList;
 
     QSqlQuery query;
@@ -527,24 +389,15 @@ QStringList QuestionDBManager::getDBDetailsOfQuestion(int questionID)
     while (query.next()) {
         detailsList << QString("* " + query.value(0).toString());
     }
-    if (!openedBefore)
-        db.close();
+
+    safeClose(openedBefore);
 
     return detailsList;
 }
 
 QStringList QuestionDBManager::getDBOptions(int questionID)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return QStringList();
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
 
@@ -560,23 +413,14 @@ QStringList QuestionDBManager::getDBOptions(int questionID)
     while (query.next())
         options << query.value(0).toString();
 
-    if (!openedBefore)
-        db.close();
+    safeClose(openedBefore);
+
     return options;
 }
 
 QString QuestionDBManager::getDBOptionCorrect(int questionID)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return QString();
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
 
@@ -594,23 +438,14 @@ QString QuestionDBManager::getDBOptionCorrect(int questionID)
     while (query.next())
         correct = query.value(0).toString();
 
-    if (!openedBefore)
-        db.close();
+    safeClose(openedBefore);
+
     return correct;
 }
 
 int QuestionDBManager::getDBAmountQuestions(QString column, QStringList columnNames)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return 0;
-        }
-    }
+    bool openedBefore = safeOpen();
 
     if (column == "Topic")
         column = "t.TopicName";
@@ -646,24 +481,15 @@ int QuestionDBManager::getDBAmountQuestions(QString column, QStringList columnNa
     query.next();
     int amount = query.value(0).toInt();
 
-    if (!openedBefore)
-        db.close();
+    safeClose(openedBefore);
 
     return amount;
 }
 
 int QuestionDBManager::getDBLastID()
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
+    bool openedBefore = safeOpen();
 
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return 0;
-        }
-    }
     QSqlQuery query;
 
     query.exec("SELECT MAX(QuestionID)\
@@ -675,23 +501,15 @@ int QuestionDBManager::getDBLastID()
     if (count > 0)
         maxID = count + 1;
 
-    if (!openedBefore)
-        db.close();
+    safeClose(openedBefore);
+
     return maxID;
 }
 
 int QuestionDBManager::insertDBArea(QString areaName)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
+    bool openedBefore = safeOpen();
 
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return 0;
-        }
-    }
     QSqlQuery query;
 
     query.prepare("INSERT OR IGNORE\
@@ -711,24 +529,15 @@ int QuestionDBManager::insertDBArea(QString areaName)
         return query.value(0).toInt();
     }
 
-    if (!openedBefore)
-        db.close();
+    safeClose(openedBefore);
 
     return 0;
 }
 
 int QuestionDBManager::insertDBSubject(QString subjectName, int areaID)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
+    bool openedBefore = safeOpen();
 
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return 0;
-        }
-    }
     QSqlQuery query;
 
     query.prepare("INSERT OR IGNORE\
@@ -749,8 +558,7 @@ int QuestionDBManager::insertDBSubject(QString subjectName, int areaID)
         return query.value(0).toInt();
     }
 
-    if (!openedBefore)
-        db.close();
+    safeClose(openedBefore);
 
     return 0;
 }
@@ -758,16 +566,8 @@ int QuestionDBManager::insertDBSubject(QString subjectName, int areaID)
 int QuestionDBManager::insertDBQuestionQuery(QString questionDescription,
                                              QString questionImageLocation)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
+    bool openedBefore = safeOpen();
 
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return 0;
-        }
-    }
     QSqlQuery query;
 
     query.prepare("INSERT OR IGNORE\
@@ -788,8 +588,7 @@ int QuestionDBManager::insertDBQuestionQuery(QString questionDescription,
         return query.value(0).toInt();
     }
 
-    if (!openedBefore)
-        db.close();
+    safeClose(openedBefore);
 
     return 0;
 }
@@ -797,16 +596,8 @@ int QuestionDBManager::insertDBQuestionQuery(QString questionDescription,
 void QuestionDBManager::insertDBTopics(QStringList topics, int subjectID,
                                        int questionID)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
+    bool openedBefore = safeOpen();
 
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return;
-        }
-    }
     QSqlQuery query;
 
     foreach (QString topic, topics) {
@@ -833,23 +624,14 @@ void QuestionDBManager::insertDBTopics(QStringList topics, int subjectID,
         query.exec();
     }
 
-    if (!openedBefore)
-        db.close();
+    safeClose(openedBefore);
 }
 
 void QuestionDBManager::insertDBOptions(QStringList options, int questionID,
                                         QList<int> correctOptions)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
+    bool openedBefore = safeOpen();
 
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return;
-        }
-    }
     QSqlQuery query;
 
     for (int i = 0; i < options.count(); i++) {
@@ -865,22 +647,13 @@ void QuestionDBManager::insertDBOptions(QStringList options, int questionID,
         query.exec();
     }
 
-    if (!openedBefore)
-        db.close();
+    safeClose(openedBefore);
 }
 
 void QuestionDBManager::deleteDBArea(int areaID)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
+    bool openedBefore = safeOpen();
 
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return;
-        }
-    }
     QSqlQuery query;
     query.prepare("SELECT COUNT(*)\
                    FROM Subjects AS s\
@@ -898,22 +671,13 @@ void QuestionDBManager::deleteDBArea(int areaID)
         query.next();
     }
 
-    if (!openedBefore)
-        db.close();
+    safeClose(openedBefore);
 }
 
 void QuestionDBManager::deleteDBSubject(int subjectID)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
+    bool openedBefore = safeOpen();
 
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return;
-        }
-    }
     QSqlQuery query;
     query.prepare("SELECT COUNT(*)\
                    FROM Topics AS t\
@@ -931,22 +695,13 @@ void QuestionDBManager::deleteDBSubject(int subjectID)
         query.next();
     }
 
-    if (!openedBefore)
-        db.close();
+    safeClose(openedBefore);
 }
 
 void QuestionDBManager::deleteDBTopics(int questionID)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
+    bool openedBefore = safeOpen();
 
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return;
-        }
-    }
     QSqlQuery query;
     query.prepare("SELECT TopicID\
                    FROM TopicsQuestions\
@@ -983,11 +738,23 @@ void QuestionDBManager::deleteDBTopics(int questionID)
         }
     }
 
+    safeClose(openedBefore);
+}
+
+void QuestionDBManager::deleteDBOptions(int questionID)
+{
+    bool openedBefore = safeOpen();
+    QSqlQuery query;
+    query.prepare("DELETE FROM Options\
+                   WHERE QuestionID = :ID");
+    query.bindValue(":ID", questionID);
+    query.exec();
+
     if (!openedBefore)
         db.close();
 }
 
-void QuestionDBManager::deleteDBOptions(int questionID)
+bool QuestionDBManager::safeOpen()
 {
     bool openedBefore = false;
     if (db.isOpen())
@@ -996,15 +763,15 @@ void QuestionDBManager::deleteDBOptions(int questionID)
     if (!openedBefore) {
         if (!db.open()) {
             qDebug() << "Database not fonud";
-            return;
+            exit();
         }
     }
-    QSqlQuery query;
-    query.prepare("DELETE FROM Options\
-                   WHERE QuestionID = :ID");
-    query.bindValue(":ID", questionID);
-    query.exec();
 
+    return openedBefore;
+}
+
+void QuestionDBManager::safeClose(bool openedBefore)
+{
     if (!openedBefore)
         db.close();
 }
