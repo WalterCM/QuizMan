@@ -44,16 +44,16 @@ HEADERS  += include/IntroWindow.hpp \
         include/QuestionEditor.hpp \
         include/DroppableImageView.hpp \
         include/Exam/QuestionDBManager.hpp \
-    include/SectionDialog.hpp \
-    include/SectionEdit.hpp
+        include/SectionDialog.hpp \
+        include/SectionEdit.hpp
 
 FORMS    += resources/ui/IntroWindow.ui \
         resources/ui/MainWindow.ui \
         resources/ui/QuestionForm.ui \
         resources/ui/QuestionEditor.ui \
         resources/ui/DroppableImageView.ui \
-    resources/ui/SectionDialog.ui \
-    resources/ui/SectionEdit.ui
+        resources/ui/SectionDialog.ui \
+        resources/ui/SectionEdit.ui
 
 DESTDIR = $$PWD
 
