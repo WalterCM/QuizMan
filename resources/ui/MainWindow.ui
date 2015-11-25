@@ -485,17 +485,14 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_7">
-    <item row="0" column="0" rowspan="2" colspan="2">
-     <layout class="QHBoxLayout" name="horizontalLayout_4"/>
-    </item>
-    <item row="1" column="1" colspan="2">
-     <layout class="QHBoxLayout" name="horizontalLayout_3"/>
+    <item row="3" column="2">
+     <layout class="QHBoxLayout" name="horizontalLayout_14"/>
     </item>
     <item row="2" column="1">
      <layout class="QHBoxLayout" name="horizontalLayout_2"/>
     </item>
-    <item row="3" column="2">
-     <layout class="QHBoxLayout" name="horizontalLayout_14"/>
+    <item row="0" column="0" rowspan="2" colspan="2">
+     <layout class="QHBoxLayout" name="horizontalLayout_4"/>
     </item>
     <item row="2" column="2">
      <widget class="QStackedWidget" name="stackedWidget">
@@ -717,10 +714,10 @@ border-width: 1px;
              </widget>
             </item>
             <item>
-             <widget class="QListView" name="listView"/>
+             <widget class="QListWidget" name="examList"/>
             </item>
             <item>
-             <widget class="QTextBrowser" name="textBrowser_2"/>
+             <widget class="QTextBrowser" name="examContent"/>
             </item>
            </layout>
           </item>
@@ -734,7 +731,7 @@ border-width: 1px;
              </widget>
             </item>
             <item>
-             <widget class="QListView" name="listView_2"/>
+             <widget class="QListWidget" name="sectionList_examSelection"/>
             </item>
            </layout>
           </item>
@@ -748,7 +745,7 @@ border-width: 1px;
              </widget>
             </item>
             <item>
-             <widget class="QTextBrowser" name="textBrowser"/>
+             <widget class="QTextBrowser" name="sectionContent"/>
             </item>
            </layout>
           </item>
@@ -793,7 +790,6 @@ border-width: 1px;
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="CustomExamSelecionPage"/>
       <widget class="QWidget" name="CustomExamCreationPage">
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
@@ -1197,6 +1193,9 @@ border-width: 1px;
        </layout>
       </widget>
      </widget>
+    </item>
+    <item row="1" column="1" colspan="2">
+     <layout class="QHBoxLayout" name="horizontalLayout_3"/>
     </item>
    </layout>
   </widget>

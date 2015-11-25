@@ -13,12 +13,22 @@ public:
     ExamManager();
     ExamManager(QSqlDatabase db);
 
-    QStringList getDBExamList();
+    QStringList getDBExamList(int examCustom);
     QStringList getDBSectionList(QString examName);
     QStringList getDBRestigerList(QString sectionName);
 
+    int getDBExamDuratioin(QString examName);
+    double getDBExamPointsPerCorrect(QString examName);
+    double getDBExamPointsPerMistake(QString examName);
+    int getDBSectionAmount(QString sectionName);
+    QString getDBSectionCriteria(QString sectionName);
+
+    QStringList getDBExamContent(QString examName);
+    QStringList getDBSectionContent(QString sectionName);
+
     void createExam();
     void saveExam(QString examName);
+
     void addByArea(QString section, int amount, QStringList areaNames);
     void addBySubject(QString section, int amount, QStringList subjectNames);
     void addByTopic(QString section, int amount, QStringList topicNames);
@@ -47,8 +57,8 @@ public:
 
     QStringList getSummary();
 
-    void setTime(int time);
-    int getTime();
+    void setDuration(int duration);
+    int getDuration();
 
     void setPositive(double points);
     int getPositive();
@@ -64,10 +74,10 @@ public:
     QStringList getResultsByQuestion(int questionID);
 
     int getAmountCorrect();
-    int getAmountCorrectBySection(QString sectionName);
+    /*int getAmountCorrectBySection(QString sectionName);
     int getAmountCorrectByArea(QString areaName);
     int getAmountCorrectBySubject(QString subjectName);
-    int getAmountCorrectByTopic(QString topicName);
+    int getAmountCorrectByTopic(QString topicName);*/
 
     int getAmountAnswered();
 private:
@@ -83,7 +93,7 @@ private:
 
     QuizManExam exam;
 
-    int time = 0;
+    int duration = 0;
 
     double pointsPerCorrect = 0.0;
     double pointsPerMistake = 0.0;
@@ -92,7 +102,7 @@ private:
     QMap<int, QString> sectionCount;
     QMap<int, QStringList> sections;
     QMap<int, int> infoAmount;
-    QMap<int, QString> sectionCriteria;
+    QMap<int, QString> sectionCriterias;
 
     QVector<QString> correctAnswers;
     QVector<QString> chosenAnswers;

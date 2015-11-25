@@ -26,12 +26,16 @@ public:
 signals:
     void alternativeSelected(QWidget *alternative);
 private slots:
-
+    void on_createExamButton_clicked();
+    void on_createSavedExamButton_clicked();
     void on_createCustonExamButton_clicked();
 
+    void on_examSelectionBack_clicked();
+    void on_examSelectionStart_clicked();
+
     void on_custonExamBack_clicked();
-    void on_customExamCreate_clicked();
     void on_customExamSave_clicked();
+    void on_customExamCreate_clicked();
 
     void on_clearSeleccion_clicked();
     void on_areaList_itemClicked(QListWidgetItem *item);
@@ -68,10 +72,10 @@ private slots:
     void on_resultsBack_clicked();
     void on_actionSignOut_triggered();
 
-    void on_createExamButton_clicked();
     void on_actionNewExam_triggered();
-    void on_examSelectionBack_clicked();
 
+    void on_examList_itemClicked(QListWidgetItem *item);
+    void on_sectionList_examSelection_itemClicked(QListWidgetItem *item);
 private:
     bool isSomethingSelected();
     bool isAreaSelected();

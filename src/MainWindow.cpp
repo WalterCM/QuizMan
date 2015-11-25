@@ -8,6 +8,7 @@
 #include "include/QuestionForm.hpp"
 #include "include/QuestionEditor.hpp"
 #include "include/IntroWindow.hpp"
+#include "include/ExamNameAsker.hpp"
 
 MainWindow::MainWindow(QString accountName, QSqlDatabase database) :
     ui(new Ui::MainWindow),
@@ -29,8 +30,30 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::on_createExamButton_clicked()
+{
+    examManager.clearExamInfo();
+    ui->stackedWidget->setCurrentWidget(ui->ExamSelecionPage);
+    ui->examList->clear();
+    ui->examList->addItems(examManager.getDBExamList(0));
+}
+
+void MainWindow::on_createSavedExamButton_clicked()
+{
+    examManager.clearExamInfo();
+    ui->stackedWidget->setCurrentWidget(ui->ExamSelecionPage);
+    ui->examList->clear();
+    ui->examList->addItems(examManager.getDBExamList(1));
+    ui->examContent->clear();
+    ui->sectionList->clear();
+    ui->sectionContent->clear();
+    ui->examSelectionStart->setEnabled(false);
+}
+
 void MainWindow::on_createCustonExamButton_clicked()
 {
+    examManager.clearExamInfo();
+    groups = 1;
     examManager = ExamManager(database);
 
     ui->addSection->setEnabled(false);
@@ -56,6 +79,7 @@ void MainWindow::on_createCustonExamButton_clicked()
     ui->subjectList->clear();
     ui->topicList->clear();
     ui->sectionList->clear();
+    ui->content->clear();
     ui->examSummary->clear();
 
     ui->cronometerMinutes->setEnabled(false);
@@ -76,14 +100,47 @@ void MainWindow::on_createCustonExamButton_clicked()
     ui->negativePoints->setAlignment(Qt::AlignCenter);
 }
 
+void MainWindow::on_examSelectionBack_clicked()
+{
+    ui->stackedWidget->setCurrentWidget(ui->MainPage);
+}
+
+void MainWindow::on_examSelectionStart_clicked()
+{
+    examManager.clearExamInfo();
+    QString examName = ui->examList->currentItem()->text();
+    foreach (QString sectionName, examManager.getDBSectionList(examName)) {
+        QStringList sectionValues = examManager.getDBRestigerList(sectionName);
+        int amount = examManager.getDBSectionAmount(sectionName);
+        QString criteria = examManager.getDBSectionCriteria(sectionName);
+        examManager.addSection(sectionName, sectionValues, amount, criteria);
+    }
+    examManager.setDuration(examManager.getDBExamDuratioin(examName));
+    examManager.setPositive(examManager.getDBExamPointsPerCorrect(examName));
+    examManager.setNegative(examManager.getDBExamPointsPerMistake(examName));
+
+    on_customExamCreate_clicked();
+}
+
 void MainWindow::on_custonExamBack_clicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->MainPage);
 }
 
+
+void MainWindow::on_customExamSave_clicked()
+{
+    ExamNameAsker asker;
+    asker.exec();
+
+    if (asker.doesSave()) {
+        examManager.saveExam(asker.getExamName());
+        ui->stackedWidget->setCurrentWidget(ui->MainPage);
+    }
+}
+
 void MainWindow::on_customExamCreate_clicked()
 {
-    if (ui->sectionList->count() == 0) return;
     QMessageBox messageBox;
     int answer;
     answer = messageBox.question(this,"Esta apunto de iniciar",
@@ -98,7 +155,7 @@ void MainWindow::on_customExamCreate_clicked()
 
     examManager.createExam();
 
-    int t = examManager.getTime();
+    int t = examManager.getDuration();
     hours = t / 60;
     minutes = t % 60;
     seconds = 1;
@@ -146,11 +203,6 @@ void MainWindow::on_customExamCreate_clicked()
 
     ui->positiveDisplay->setText(ui->positivePoints->text());
     ui->negativeDisplay->setText(ui->negativePoints->text());
-}
-
-void MainWindow::on_customExamSave_clicked()
-{
-
 }
 
 void MainWindow::on_clearSeleccion_clicked()
@@ -422,7 +474,7 @@ void MainWindow::on_sectionList_itemClicked(QListWidgetItem *item)
 void MainWindow::on_cronometerCheckBox_clicked(bool checked)
 {
     ui->cronometerMinutes->setEnabled(checked);
-    examManager.setTime(ui->cronometerMinutes->text().toInt() * checked);
+    examManager.setDuration(ui->cronometerMinutes->text().toInt() * checked);
 
     if (ui->sectionList->count() == 1)
         updateSummary();
@@ -430,7 +482,7 @@ void MainWindow::on_cronometerCheckBox_clicked(bool checked)
 
 void MainWindow::on_cronometerMinutes_textEdited(const QString &arg1)
 {
-    examManager.setTime(arg1.toInt());
+    examManager.setDuration(arg1.toInt());
     updateSummary();
 }
 
@@ -496,6 +548,7 @@ void MainWindow::on_resultSections_itemClicked(QListWidgetItem *item)
 {
     QString sectionName = item->text();
     QList<Question> questions = examManager.getQuestionsAtSection(sectionName).values();
+    ui->resultQuestions->clear();
     foreach (Question question, questions) {
         ui->resultQuestions->addItem(question.getDescription());
     }
@@ -523,20 +576,33 @@ void MainWindow::on_actionSignOut_triggered()
 
 }
 
-void MainWindow::on_createExamButton_clicked()
-{
-    ui->stackedWidget->setCurrentWidget(ui->ExamSelecionPage);
-}
-
 void MainWindow::on_actionNewExam_triggered()
 {
     on_createExamButton_clicked();
 }
 
-void MainWindow::on_examSelectionBack_clicked()
+void MainWindow::on_examList_itemClicked(QListWidgetItem *item)
 {
-    ui->stackedWidget->setCurrentWidget(ui->MainPage);
+    ui->examSelectionStart->setEnabled(true);
+    ui->sectionList_examSelection->clear();
+    QString examName = item->text();
+    ui->sectionList_examSelection->addItems(examManager.getDBSectionList(examName));
+
+    ui->examContent->clear();
+    foreach (QString line, examManager.getDBExamContent(examName)) {
+        ui->examContent->append(line);
+    }
 }
+
+void MainWindow::on_sectionList_examSelection_itemClicked(QListWidgetItem *item)
+{
+    QString sectionName = item->text();
+    ui->sectionContent->clear();
+    foreach (QString line, examManager.getDBSectionContent(sectionName)) {
+        ui->sectionContent->append(line);
+    }
+}
+
 
 bool MainWindow::isSomethingSelected()
 {
@@ -676,15 +742,15 @@ void MainWindow::updateCronometer()
     }
     ui->cronometer->display(text);
 
-    examManager.setTime(hours * 60 + minutes + seconds / 60);
+    examManager.setDuration(hours * 60 + minutes + seconds / 60);
 
     if (hours == 0 && minutes == 0 && seconds == 0) {
         on_endExam_clicked();
     }
 }
 
- void MainWindow::setChosenAnswers()
- {
+void MainWindow::setChosenAnswers()
+{
     QVector<QString> chosenAnswers;
     foreach (QButtonGroup *answer, answers.values()) {
         if (answer->checkedButton())
@@ -693,4 +759,8 @@ void MainWindow::updateCronometer()
             chosenAnswers.push_back("");
     }
     examManager.setChosenAnswers(chosenAnswers);
- }
+}
+
+
+
+

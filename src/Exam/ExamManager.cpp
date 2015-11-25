@@ -12,12 +12,15 @@ ExamManager::ExamManager(QSqlDatabase db)
     questionManager = QuestionDBManager(db);
 }
 
-QStringList ExamManager::getDBExamList()
+QStringList ExamManager::getDBExamList(int examCustom)
 {
     bool openedBefore = safeOpen();
 
     QSqlQuery query;
-    query.exec("SELECT ExamName FROM Exams");
+    query.prepare("SELECT ExamName FROM Exams\
+                   WHERE ExamCustom = :examCustom");
+    query.bindValue(":examCustom", examCustom);
+    query.exec();
     QStringList examList;
     while (query.next()) {
         examList << query.value(0).toString();
@@ -72,12 +75,172 @@ QStringList ExamManager::getDBRestigerList(QString sectionName)
     return registerList;
 }
 
+int ExamManager::getDBExamDuratioin(QString examName)
+{
+    bool openedBefore = safeOpen();
+
+    QSqlQuery query;
+    query.prepare("SELECT ExamDuration\
+                   FROM Exams\
+                   WHERE ExamName = :examName");
+    query.bindValue(":examName", examName);
+    query.exec();
+    int examDuration;
+    while (query.next()) {
+        examDuration = query.value(0).toInt();
+    }
+
+    safeClose(openedBefore);
+
+    return examDuration;
+}
+
+double ExamManager::getDBExamPointsPerCorrect(QString examName)
+{
+    bool openedBefore = safeOpen();
+
+    QSqlQuery query;
+    query.prepare("SELECT ExamPointsFavor\
+                   FROM Exams\
+                   WHERE ExamName = :examName");
+    query.bindValue(":examName", examName);
+    query.exec();
+    double examPointsPerCorrect;
+    while (query.next()) {
+        examPointsPerCorrect = query.value(0).toDouble();
+    }
+
+    safeClose(openedBefore);
+
+    return examPointsPerCorrect;
+}
+
+double ExamManager::getDBExamPointsPerMistake(QString examName)
+{
+    bool openedBefore = safeOpen();
+
+    QSqlQuery query;
+    query.prepare("SELECT ExamPointsAgainst\
+                   FROM Exams\
+                   WHERE ExamName = :examName");
+    query.bindValue(":examName", examName);
+    query.exec();
+    double examPointsPerMistake;
+    while (query.next()) {
+        examPointsPerMistake = query.value(0).toDouble();
+    }
+
+    safeClose(openedBefore);
+
+    return examPointsPerMistake;
+}
+
+int ExamManager::getDBSectionAmount(QString sectionName)
+{
+    bool openedBefore = safeOpen();
+
+    QSqlQuery query;
+    query.prepare("SELECT SectionNumberQuestions\
+                   FROM Sections\
+                   WHERE SectionName = :sectionName");
+    query.bindValue(":sectionName", sectionName);
+    query.exec();
+
+    int sectionNumberQuestions;
+    while (query.next()) {
+        sectionNumberQuestions = query.value(0).toInt();
+    }
+
+    safeClose(openedBefore);
+
+    return sectionNumberQuestions;
+}
+
+QString ExamManager::getDBSectionCriteria(QString sectionName)
+{
+    bool openedBefore = safeOpen();
+
+    QSqlQuery query;
+    query.prepare("SELECT SectionCriteria\
+                   FROM Sections\
+                   WHERE SectionName = :sectionName");
+    query.bindValue(":sectionName", sectionName);
+    query.exec();
+
+    QString sectionCriteria;
+    while (query.next()) {
+        sectionCriteria = query.value(0).toString();
+    }
+
+    safeClose(openedBefore);
+
+    return sectionCriteria;
+}
+
+QStringList ExamManager::getDBExamContent(QString examName)
+{
+    bool openedBefore = safeOpen();
+
+    QSqlQuery query;
+    query.prepare("SELECT ExamDuration, ExamPointsFavor, ExamPointsAgainst\
+                   FROM Exams\
+                   WHERE ExamName = :examName");
+    query.bindValue(":examName", examName);
+    query.exec();
+    QStringList examContent;
+    while (query.next()) {
+        examContent << ("Nombre del examen: " + examName);
+        examContent << "";
+        examContent << ("Duracion del examen: " + query.value(0).toString());
+        examContent << ("Puntos a favor: " + query.value(1).toString());
+        examContent << ("Puntos en contra: " + query.value(2).toString());
+    }
+
+    safeClose(openedBefore);
+
+    return examContent;
+}
+
+QStringList ExamManager::getDBSectionContent(QString sectionName)
+{
+    bool openedBefore = safeOpen();
+
+    QSqlQuery query;
+    query.prepare("SELECT SectionID, SectionNumberQuestions\
+                   FROM Sections\
+                   WHERE SectionName = :sectionName");
+    query.bindValue(":sectionName", sectionName);
+    query.exec();
+    QStringList sectionContent;
+    int sectionID;
+    while (query.next()) {
+        sectionID = query.value(0).toInt();
+        sectionContent << ("Cantidad: " + query.value(1).toString());
+        sectionContent << "";
+    }
+
+    query.prepare("SELECT RegisterName\
+                   FROM Registers\
+                   WHERE SectionID = :sectionID");
+    query.bindValue(":sectionID", sectionID);
+    query.exec();
+
+    while (query.next()) {
+        sectionContent << query.value(0).toString();
+    }
+
+    safeClose(openedBefore);
+
+    return sectionContent;
+}
+
 void ExamManager::createExam()
 {
+    exam = QuizManExam();
     foreach (int index, sectionCount.keys()) {
         QString section = sectionCount[index];
         QStringList list = sections[index];
-        QString criteria = sectionCriteria[index];
+        QString criteria = sectionCriterias[index];
 
         if (criteria == "Area") {
             addByArea(section, infoAmount[index], list);
@@ -91,7 +254,65 @@ void ExamManager::createExam()
 
 void ExamManager::saveExam(QString examName)
 {
+    bool openedBefore = safeOpen();
 
+    QSqlQuery query;
+
+    query.prepare("INSERT INTO Exams (ExamName, ExamDuration, ExamPointsFavor, ExamPointsAgainst, ExamCustom)\
+                   VALUES (:examName, :examDuration, :examPointsFavor, :examPointsAgainst, 1)");
+    query.bindValue(":examName", examName);
+    query.bindValue(":examDuration", duration);
+    query.bindValue(":examPointsFavor", pointsPerCorrect);
+    query.bindValue(":examPointsAgainst", pointsPerMistake);
+    query.exec();
+
+    query.prepare("SELECT examID\
+                   FROM Exams\
+                   WHERE ExamName = :examName");
+    query.bindValue(":examName", examName);
+    query.exec();
+    query.next();
+
+    int examID = query.value(0).toInt();
+
+    foreach (int sectionKey, sectionCount.keys()) {
+        QString sectionName = sectionCount[sectionKey];
+        int sectionNumberQuestions = infoAmount[sectionKey];
+        QString sectionCriteria = sectionCriterias[sectionKey];
+
+        QSqlQuery sectionQuery;
+        sectionQuery.prepare("INSERT INTO Sections (SectionName, ExamID, SectionNumberQuestions, SectionCriteria)\
+                              VALUES (:sectionName, :examID, :sectionNumberQuestions, :sectionCriteria)");
+
+        sectionQuery.bindValue(":sectionName", sectionName);
+        sectionQuery.bindValue(":examID", examID);
+        sectionQuery.bindValue(":sectionNumberQuestions", sectionNumberQuestions);
+        sectionQuery.bindValue(":sectionCriteria", sectionCriteria);
+
+        sectionQuery.exec();
+
+        sectionQuery.prepare("SELECT sectionID\
+                              FROM Sections\
+                              WHERE SectionName = :sectionName");
+        sectionQuery.bindValue(":sectionName", sectionName);
+        sectionQuery.exec();
+        sectionQuery.next();
+
+        int sectionID = sectionQuery.value(0).toInt();
+        foreach (QString registerName, sections[sectionKey]) {
+            QSqlQuery registerQuery;
+            registerQuery.prepare("INSERT INTO Registers (RegisterName, SectionID)\
+                                   VALUES (:registerName, :sectionID)");
+            registerQuery.bindValue(":registerName", registerName);
+            registerQuery.bindValue(":sectionID", sectionID);
+            qDebug() << "registeRName: " << registerName;
+            qDebug() << "sectionID: " << sectionID;
+            registerQuery.exec();
+            qDebug() << "debugging1" << sectionQuery.lastError();
+        }
+    }
+
+    safeClose(openedBefore);
 }
 
 void ExamManager::addByArea(QString section, int amount, QStringList areaNames)
@@ -157,6 +378,9 @@ int ExamManager::getAmountQuestions()
 
 void ExamManager::clearExamInfo()
 {
+    if (!sectionCriterias.empty())
+        sectionCount.clear();
+
     if (!infoAmount.empty())
         infoAmount.clear();
 
@@ -167,6 +391,16 @@ void ExamManager::clearExamInfo()
         sectionCount.clear();
 
     sectionID = 0;
+
+    duration = 0;
+    pointsPerCorrect = 0;
+    pointsPerMistake = 0;
+
+    if (!correctAnswers.empty())
+        correctAnswers.clear();
+
+    if (!chosenAnswers.empty())
+        chosenAnswers.clear();
 }
 
 bool ExamManager::addSection(QString sectionName, QStringList sectionValues,
@@ -178,7 +412,7 @@ bool ExamManager::addSection(QString sectionName, QStringList sectionValues,
     sectionCount.insert(sectionID, sectionName);
     sections.insert(sectionID, sectionValues);
     infoAmount.insert(sectionID, amount);
-    sectionCriteria.insert(sectionID++, criteria);
+    sectionCriterias.insert(sectionID++, criteria);
 
     return true;
 }
@@ -186,7 +420,7 @@ bool ExamManager::addSection(QString sectionName, QStringList sectionValues,
 bool ExamManager::removeSection(QString sectionName)
 {
     sectionID = sectionCount.key(sectionName);
-    sectionCriteria.remove(sectionID);
+    sectionCriterias.remove(sectionID);
     infoAmount.remove(sectionID);
     sections.remove(sectionID);
     sectionCount.remove(sectionID);
@@ -215,28 +449,23 @@ QStringList ExamManager::getSectionNames()
 
 QStringList ExamManager::getSectionValues(QString sectionName)
 {
-    QStringList questions;
-    foreach (Question question, exam.getQuestionsAtSection(sectionName).values()) {
-        questions << question.getDescription();
-    }
-
-    return questions;
+    return sections[sectionCount.key(sectionName)];
 }
 
 int ExamManager::getSectionAmount(QString sectionName)
 {
-    return exam.getAmountOfQuestionsAtSection(sectionName);
+    return infoAmount[sectionCount.key(sectionName)];
 }
 
 QString ExamManager::getSectionCriteria(QString sectionName)
 {
-    return sectionCriteria[sectionCount.key(sectionName)];
+    return sectionCriterias[sectionCount.key(sectionName)];
 }
 
 QStringList ExamManager::getSummary()
 {
     QStringList summary;
-    summary << ("<b>Cronometro: " + QString::number(time) + " minutos");
+    summary << ("<b>Cronometro: " + QString::number(duration) + " minutos");
     summary << "";
     summary << "<b>Puntos a favor: </b>" + QString::number(pointsPerCorrect);
     summary << "<b>Puntos en contra: </b>" + QString::number(pointsPerMistake);
@@ -247,14 +476,14 @@ QStringList ExamManager::getSummary()
     return summary;
 }
 
-void ExamManager::setTime(int time)
+void ExamManager::setDuration(int duration)
 {
-    this->time = time;
+    this->duration = duration;
 }
 
-int ExamManager::getTime()
+int ExamManager::getDuration()
 {
-    return time;
+    return duration;
 }
 
 void ExamManager::setPositive(double points)
@@ -296,14 +525,14 @@ QStringList ExamManager::getResults()
 {
     QStringList result;
     int correctNum = getAmountCorrect();
-    int incorrectNum = getAmountAnswered() - getAmountCorrect();
+    int incorrectNum = getAmountAnswered() - correctNum;
     double maxPoints = getAmountQuestions() * pointsPerCorrect;
     double actualPoints = correctNum * pointsPerCorrect - incorrectNum * pointsPerMistake;
 
     result << "<h1>Termino el examen!</h1>";
     result << "________________________________";
     result << "";
-    result << "<b>Tiempo restante para acabar el examen: </b>" + QString::number(time) + " minutos";
+    result << "<b>Tiempo restante para acabar el examen: </b>" + QString::number(duration) + " minutos";
     result << "";
     result << "<b>Puntos ganados por correcta: </b>" + QString::number(pointsPerCorrect);
     result << "<b>Puntos perdidos por incorrecta: </b>" + QString::number(pointsPerMistake);
@@ -346,7 +575,7 @@ int ExamManager::getAmountCorrect()
     return amount;
 }
 
-int ExamManager::getAmountCorrectBySection(QString sectionName)
+/*int ExamManager::getAmountCorrectBySection(QString sectionName)
 {
 
 }
@@ -364,7 +593,7 @@ int ExamManager::getAmountCorrectBySubject(QString subjectName)
 int ExamManager::getAmountCorrectByTopic(QString topicName)
 {
 
-}
+}*/
 
 int ExamManager::getAmountAnswered()
 {

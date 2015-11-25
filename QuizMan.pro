@@ -26,8 +26,9 @@ SOURCES += src/Main.cpp\
         src/QuestionEditor.cpp \
         src/DroppableImageView.cpp \
         src/Exam/QuestionDBManager.cpp \
-    src/SectionEdit.cpp \
-    src/SectionDialog.cpp
+        src/SectionEdit.cpp \
+        src/SectionDialog.cpp \
+        src/ExamNameAsker.cpp
 
 HEADERS  += include/IntroWindow.hpp \
         include/Account.hpp \
@@ -45,7 +46,8 @@ HEADERS  += include/IntroWindow.hpp \
         include/DroppableImageView.hpp \
         include/Exam/QuestionDBManager.hpp \
         include/SectionDialog.hpp \
-        include/SectionEdit.hpp
+        include/SectionEdit.hpp \
+        include/ExamNameAsker.hpp
 
 FORMS    += resources/ui/IntroWindow.ui \
         resources/ui/MainWindow.ui \
@@ -53,7 +55,8 @@ FORMS    += resources/ui/IntroWindow.ui \
         resources/ui/QuestionEditor.ui \
         resources/ui/DroppableImageView.ui \
         resources/ui/SectionDialog.ui \
-        resources/ui/SectionEdit.ui
+        resources/ui/SectionEdit.ui \
+        resources/ui/ExamNameAsker.ui
 
 DESTDIR = $$PWD
 
