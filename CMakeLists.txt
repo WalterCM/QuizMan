@@ -18,34 +18,48 @@ add_definitions(${QT_DEFINITIONS})
 set(QuizMan_SOURCES
         src/Main.cpp
         src/IntroWindow.cpp
-        src/MainWindow.cpp
-        src/Account/AccountManager.cpp
         src/Account/UserAccount.cpp
+        src/Account/AccountManager.cpp
+        src/MainWindow.cpp
         src/Exam/QuizManExam.cpp
         src/Exam/Question.cpp
         src/Exam/Option.cpp
         src/Exam/ExamManager.cpp
-        src/RegistryDialog.cpp
-        src/RegistryEdit.cpp)
+        src/QuestionForm.cpp
+        src/QuestionEditor.cpp
+        src/DroppableImageView.cpp
+        src/Exam/QuestionDBManager.cpp
+        src/SectionEdit.cpp
+        src/SectionDialog.cpp
+        src/ExamNameAsker.cpp)
 set(QuizMan_FORMS
-        resources/ui/MainWindow.ui
         resources/ui/IntroWindow.ui
-        resources/ui/RegistryDialog.ui
-        resources/ui/RegistryEdit.ui)
+        resources/ui/MainWindow.ui
+        resources/ui/QuestionForm.ui
+        resources/ui/QuestionEditor.ui
+        resources/ui/DroppableImageView.ui
+        resources/ui/SectionDialog.ui
+        resources/ui/SectionEdit.ui
+        resources/ui/ExamNameAsker.ui)
 set(QuizMan_HEADERS
         include/IntroWindow.hpp
-        include/MainWindow.hpp
-        include/Account/AccountManager.hpp
-        include/Account/UserAccount.hpp
         include/Account.hpp
+        include/Account/UserAccount.hpp
+        include/Account/AccountManager.hpp
         include/ProgramConstants.hpp
+        include/MainWindow.hpp
         include/Exam/QuizManExam.hpp
         include/Exam/Question.hpp
         include/Exam/Option.hpp
         include/Exam/ExamManager.hpp
         include/Exam.hpp
-        include/RegistryDialog.hpp
-        include/RegistryEdit.hpp)
+        include/QuestionForm.hpp
+        include/QuestionEditor.hpp
+        include/DroppableImageView.hpp
+        include/Exam/QuestionDBManager.hpp
+        include/SectionDialog.hpp
+        include/SectionEdit.hpp
+        include/ExamNameAsker.hpp)
 set(UI_RESOURCES
         resources/resources.qrc
 )
