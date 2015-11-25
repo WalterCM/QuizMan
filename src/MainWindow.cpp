@@ -148,6 +148,11 @@ void MainWindow::on_customExamCreate_clicked()
     ui->negativeDisplay->setText(ui->negativePoints->text());
 }
 
+void MainWindow::on_customExamSave_clicked()
+{
+
+}
+
 void MainWindow::on_clearSeleccion_clicked()
 {
     examManager.clearExamInfo();
@@ -689,5 +694,3 @@ void MainWindow::updateCronometer()
     }
     examManager.setChosenAnswers(chosenAnswers);
  }
-
-

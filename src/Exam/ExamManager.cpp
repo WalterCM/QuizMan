@@ -14,16 +14,7 @@ ExamManager::ExamManager(QSqlDatabase db)
 
 QStringList ExamManager::getDBExamList()
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return QStringList();
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     query.exec("SELECT ExamName FROM Exams");
@@ -31,24 +22,15 @@ QStringList ExamManager::getDBExamList()
     while (query.next()) {
         examList << query.value(0).toString();
     }
-    if (!openedBefore)
-        db.close();
+
+    safeClose(openedBefore);
 
     return examList;
 }
 
 QStringList ExamManager::getDBSectionList(QString examName)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return QStringList();
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     query.prepare("SELECT s.SectionName\
@@ -70,16 +52,7 @@ QStringList ExamManager::getDBSectionList(QString examName)
 
 QStringList ExamManager::getDBRestigerList(QString sectionName)
 {
-    bool openedBefore = false;
-    if (db.isOpen())
-        openedBefore = true;
-
-    if (!openedBefore) {
-        if (!db.open()) {
-            qDebug() << "Database not fonud";
-            return QStringList();
-        }
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     query.prepare("SELECT r.RegisterName\
@@ -93,8 +66,8 @@ QStringList ExamManager::getDBRestigerList(QString sectionName)
     while (query.next()) {
         registerList << query.value(0).toString();
     }
-    if (!openedBefore)
-        db.close();
+
+    safeClose(openedBefore);
 
     return registerList;
 }
@@ -114,6 +87,11 @@ void ExamManager::createExam()
             addByTopic(section, infoAmount[index], list);
         }
     }
+}
+
+void ExamManager::saveExam(QString examName)
+{
+
 }
 
 void ExamManager::addByArea(QString section, int amount, QStringList areaNames)
@@ -401,11 +379,7 @@ int ExamManager::getAmountAnswered()
 void ExamManager::addQuestions(QString section, QString column,
                                int amount, QStringList columnNames)
 {
-    if (!db.open()) {
-        qDebug() << "Database not found";
-        qDebug() << "8";
-        return;
-    }
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     QString queryString;
@@ -446,12 +420,14 @@ void ExamManager::addQuestions(QString section, QString column,
         correctAnswers.push_back(questionManager.getDBOptionCorrect(id));
     }
     exam.addQuestions(section, questionList);
-    db.close();
+
+    safeClose(openedBefore);
 }
 
 Question ExamManager::getQuestion(int questionID, QString questionDescription,
                                   QString imageLocation)
 {
+    bool openedBefore = safeOpen();
 
     QSqlQuery query;
     query.prepare("SELECT OptionDescription, OptionCorrect\
@@ -485,5 +461,31 @@ Question ExamManager::getQuestion(int questionID, QString questionDescription,
     question.setID(questionID);
     question.setDescription(questionDescription);
     question.setImageLocation(imageLocation);
+
+    safeClose(openedBefore);
+
     return question;
 }
+
+bool ExamManager::safeOpen()
+{
+    bool openedBefore = false;
+    if (db.isOpen())
+        openedBefore = true;
+
+    if (!openedBefore) {
+        if (!db.open()) {
+            qDebug() << "Database not fonud";
+            exit(0);
+        }
+    }
+
+    return openedBefore;
+}
+
+void ExamManager::safeClose(bool openedBefore)
+{
+    if (!openedBefore)
+        db.close();
+}
+

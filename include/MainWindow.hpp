@@ -28,8 +28,10 @@ signals:
 private slots:
 
     void on_createCustonExamButton_clicked();
+
     void on_custonExamBack_clicked();
     void on_customExamCreate_clicked();
+    void on_customExamSave_clicked();
 
     void on_clearSeleccion_clicked();
     void on_areaList_itemClicked(QListWidgetItem *item);

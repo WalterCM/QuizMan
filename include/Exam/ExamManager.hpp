@@ -18,6 +18,7 @@ public:
     QStringList getDBRestigerList(QString sectionName);
 
     void createExam();
+    void saveExam(QString examName);
     void addByArea(QString section, int amount, QStringList areaNames);
     void addBySubject(QString section, int amount, QStringList subjectNames);
     void addByTopic(QString section, int amount, QStringList topicNames);
@@ -73,6 +74,9 @@ private:
     void addQuestions(QString section, QString column, int amount, QStringList columnNames);
 
     Question getQuestion(int questionID, QString questionDescription, QString imageLocation);
+
+    bool safeOpen();
+    void safeClose(bool openedBefore);
 
     QSqlDatabase db;
     QuestionDBManager questionManager;
