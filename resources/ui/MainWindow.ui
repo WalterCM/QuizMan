@@ -955,7 +955,7 @@ border-width: 1px;
            <widget class="QLineEdit" name="positivePoints">
             <property name="maximumSize">
              <size>
-              <width>30</width>
+              <width>40</width>
               <height>16777215</height>
              </size>
             </property>
@@ -972,7 +972,7 @@ border-width: 1px;
            <widget class="QLineEdit" name="negativePoints">
             <property name="maximumSize">
              <size>
-              <width>30</width>
+              <width>40</width>
               <height>16777215</height>
              </size>
             </property>

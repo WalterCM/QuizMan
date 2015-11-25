@@ -318,7 +318,7 @@ QStringList ExamManager::getResults()
 {
     QStringList result;
     int correctNum = getAmountCorrect();
-    int incorrectNum = getAmountQuestions() - getAmountCorrect();
+    int incorrectNum = getAmountAnswered() - getAmountCorrect();
     double maxPoints = getAmountQuestions() * pointsPerCorrect;
     double actualPoints = correctNum * pointsPerCorrect - incorrectNum * pointsPerMistake;
 
@@ -351,7 +351,8 @@ QStringList ExamManager::getResultsByQuestion(int questionID)
     result << "<b>Respuesta escogida: </b>" + chosen;
 
     bool isCorrect = (correct == chosen);
-    double neto = pointsPerCorrect * isCorrect - pointsPerMistake * !isCorrect;
+    bool wasAnswered = (chosen != "");
+    double neto = wasAnswered * (pointsPerCorrect * isCorrect - pointsPerMistake * !isCorrect);
     result << "<b>Puntaje neto: </b>" + QString::number(neto);
 
     return result;
@@ -385,6 +386,16 @@ int ExamManager::getAmountCorrectBySubject(QString subjectName)
 int ExamManager::getAmountCorrectByTopic(QString topicName)
 {
 
+}
+
+int ExamManager::getAmountAnswered()
+{
+    int amountOfAnswers = 0;
+    foreach (QString answer, chosenAnswers) {
+        if (answer != "")   amountOfAnswers++;
+    }
+
+    return amountOfAnswers;
 }
 
 void ExamManager::addQuestions(QString section, QString column,

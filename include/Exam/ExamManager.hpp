@@ -67,6 +67,8 @@ public:
     int getAmountCorrectByArea(QString areaName);
     int getAmountCorrectBySubject(QString subjectName);
     int getAmountCorrectByTopic(QString topicName);
+
+    int getAmountAnswered();
 private:
     void addQuestions(QString section, QString column, int amount, QStringList columnNames);
 
